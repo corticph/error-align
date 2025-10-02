@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/logo.svg" alt="ErrorAlign Logo" width="85%"/>
+  <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/logo.svg" alt="ErrorAlign Logo" width="85%"/>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/python-%203.11%20|%203.12%20|%203.13-green" alt="Python Versions">
-  <img src="https://img.shields.io/codecov/c/github/borgholt/error-align/main.svg?style=flat-square" alt="Coverage" style="margin-left:5px;">
-  <img src="https://github.com/borgholt/error-align/actions/workflows/lint.yml/badge.svg?branch=main" alt="Linting" style="margin-left:5px;">
+  <img src="https://img.shields.io/codecov/c/github/corticph/error-align/main.svg?style=flat-square" alt="Coverage" style="margin-left:5px;">
+  <img src="https://github.com/corticph/error-align/actions/workflows/lint.yml/badge.svg?branch=main" alt="Linting" style="margin-left:5px;">
   <img src="https://img.shields.io/pypi/v/error-align.svg" alt="PyPI" style="margin-left:5px;">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" style="margin-left:5px;">
 </p>
@@ -66,9 +66,9 @@ Alignment(INSERT: "period")
 ## Citation and Research
 
 ```
-@article{borgholt2021alignment,
+@article{corticph2021alignment,
   title={A Text-To-Text Alignment Algorithm for Better Evaluation of Modern Speech Recognition Systems},
-  author={Borgholt, Lasse and Havtorn, Jakob and Igel, Christian and Maal{\o}e, Lars and Tan, Zheng-Hua},
+  author={corticph, Lasse and Havtorn, Jakob and Igel, Christian and Maal{\o}e, Lars and Tan, Zheng-Hua},
   journal={arXiv preprint arXiv:2509.24478},
   year={2025}
 }
@@ -78,7 +78,7 @@ __To reproduce results from the paper:__
 - Install with extra evaluation dependencies - only supported with Python 3.12:
   - `pip install error-align[evaluation]`
 - Clone this repository:
-  - `git clone https://github.com/borgholt/error-align.git`
+  - `git clone https://github.com/corticph/error-align.git`
 - Navigate to the evaluation directory:
   - `cd error-align/evaluation`
 - Transcribe a dataset for evaluation. For example:
@@ -97,23 +97,23 @@ __Collaborators:__
 
 <div>
   <a href="https://corti.ai">
-    <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/corti.png" alt="Corti" height="75">
+    <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/corti.png" alt="Corti" height="75">
   </a>
-  <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
-  <a href="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/aau.png">
-    <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/aau.png" alt="Aalborg University" height="75">
+  <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
+  <a href="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/aau.png">
+    <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/aau.png" alt="Aalborg University" height="75">
   </a>
-  <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
-  <a href="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/pcai.png">
-    <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/pcai.png" alt="Pioneer Centre for Artificial Intelligence" height="75">
+  <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
+  <a href="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/pcai.png">
+    <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/pcai.png" alt="Pioneer Centre for Artificial Intelligence" height="75">
   </a>
-  <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
-  <a href="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/dtu.png">
-    <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/dtu.png" alt="Technical University of Denmark" height="75">
+  <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
+  <a href="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/dtu.png">
+    <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/dtu.png" alt="Technical University of Denmark" height="75">
   </a>
-  <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
+  <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/empty.png" alt="" width="30">
   <a href="https://www.ku.dk/">
-    <img src="https://raw.githubusercontent.com/borgholt/error-align/refs/heads/main/.github/assets/ucph.png" alt="University of Copenhagen" height="75">
+    <img src="https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/ucph.png" alt="University of Copenhagen" height="75">
   </a>
 </div>
 
