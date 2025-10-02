@@ -1,0 +1,22 @@
+name: Release Drafter (main branch)
+
+permissions:
+  pull-requests: read
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Option for manual trigger
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release_drafter_main_branch.yml
+          disable-autolabeler: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

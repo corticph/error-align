@@ -1,0 +1,34 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+categories:
+  - title: '🔴 Major changes'
+    label: 'major'
+    exclude-label: 'dependabot'
+  - title: '🟠 Minor changes'
+    label: 'minor'
+    exclude-label: 'dependabot'
+  - title: '🟡 Patch changes'
+    label: 'patch'
+    exclude-label: 'dependabot'
+  - title: '📦 Dependencies'
+    collapse-after: 1
+    label: dependabot
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+version-resolver:
+  major:
+    labels:
+      - 'major'
+  minor:
+    labels:
+      - 'minor'
+  patch:
+    labels:
+      - 'patch'
+  default: patch
+filter-by-commitish: true
+template: |
+  ## What's Changed
+  $CHANGES
+
+  **Full change log**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

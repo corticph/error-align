@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-label="ErrorAlign logo" overflow="visible">
+
+  <!-- outer black border -->
+  <rect x="197" y="40" width="880" height="220" fill="black" stroke="black" stroke-width="10" transform="skewX(-12)"/>
+
+  <!-- outer white border -->
+  <rect x="207" y="50" width="860" height="200" fill="white" stroke="white" stroke-width="10" transform="skewX(-12)"/>
+
+  <!-- inner black border rectangle -->
+  <rect x="217" y="60" width="840" height="180" fill="white" stroke="black" stroke-width="10" transform="skewX(-12)"/>
+
+  <!-- the text -->
+  <text x="50%" y="167"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font-weight="700"
+        font-style="italic"
+        font-size="175"
+        stroke="#000000ff"
+        stroke-opacity="1"
+        stroke-width="6"
+        letter-spacing="-2"
+        fill="#caffb5ff">
+    ErrorAlign
+  </text>
+</svg>

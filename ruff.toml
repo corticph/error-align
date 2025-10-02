@@ -1,0 +1,31 @@
+# Enable the pycodestyle (`E`), Pyflakes (`F`) and isort (`I`) rules by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+lint.select = ["E", "F", "I", "N", "B"]
+lint.ignore = []
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+lint.fixable = ["ALL"]
+lint.unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Exclude a variety of commonly ignored directories.
+lint.per-file-ignores = {}
+exclude = [
+    ".git",
+    ".git-rewrite",
+    ".ruff_cache",
+    ".venv",
+    "__pypackages__",
+    "venv",
+    "src/error_align/baselines",
+]
+
+line-length = 120
+
+# Assume Python 3.12
+target-version = "py312"
+
+

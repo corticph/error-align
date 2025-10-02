@@ -1,0 +1,29 @@
+name: Label Check
+
+permissions:
+  pull-requests: read
+
+concurrency:
+  # Overwrite previous label check action if new triggered (one run per PR, cancel on new run)
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+
+jobs:
+  check_version_labels:
+    name: Ensure version label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          github_enterprise_graphql_url: https://api.github.com/graphql
+          one_of: major,minor,patch
+          repo_token: ${{ secrets.GITHUB_TOKEN }}

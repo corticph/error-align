@@ -1,0 +1,9 @@
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_de.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_es.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_fr.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_id.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_pl.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_pt.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_sw.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_tr.parquet --beam_size 100 --save_results
+python evaluate_dataset.py --transcript_file transcribed_data/whisper_commonvoice_test_vi.parquet --beam_size 100 --save_results

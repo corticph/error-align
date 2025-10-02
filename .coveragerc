@@ -1,0 +1,6 @@
+[run]
+branch = True
+source = error_align
+
+[report]
+omit = src/error_align/baselines/*
