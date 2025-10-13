@@ -43,8 +43,8 @@ alignments = error_align(ref, hyp)
 
 Resulting alignments:
 ```python
-Alignment(SUBSTITUTE: "Some" -> "Some"-),
-Alignment(SUBSTITUTE: "things" -> -"thing"),
+Alignment(SUBSTITUTE: "Some"- -> "Some"),
+Alignment(SUBSTITUTE: -"thing" -> "things"),
 Alignment(DELETE: "are"),
 Alignment(MATCH: "worth" == "worth"),
 Alignment(SUBSTITUTE: "noting" -> "nothing"),

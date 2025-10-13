@@ -62,7 +62,7 @@ def test_representations() -> None:
     substitute_alignment = error_align("substitution", "substitutiontesting")[0]
     assert substitute_alignment.left_compound is False
     assert substitute_alignment.right_compound is True
-    assert repr(substitute_alignment) == 'Alignment(SUBSTITUTE: "substitution" -> "substitution"-)'
+    assert repr(substitute_alignment) == 'Alignment(SUBSTITUTE: "substitution"- -> "substitution")'
 
     # Test MATCH operation without compound markers
     match_alignment = error_align("test", "test")[0]
