@@ -30,18 +30,16 @@ class Alignment:
         """Return the hypothesis with compound markers if applicable."""
         if self.hyp is None:
             return None
-        return f"{'-' if self.left_compound else ''}{self.hyp}{'-' if self.right_compound else ''}"
+        return f'{"-" if self.left_compound else ""}"{self.hyp}"{"-" if self.right_compound else ""}'
 
     def __repr__(self) -> str:
-        lc = "-" if self.left_compound else ""
-        rc = "-" if self.right_compound else ""
         if self.op_type == OpType.DELETE:
             return f'Alignment({self.op_type.name}: "{self.ref}")'
         if self.op_type == OpType.INSERT:
-            return f'Alignment({self.op_type.name}: "{self.hyp_with_compound_markers}")'
+            return f'Alignment({self.op_type.name}: {self.hyp_with_compound_markers})'
         if self.op_type == OpType.SUBSTITUTE:
-            return f'Alignment({self.op_type.name}: "{self.ref}" -> {lc}"{self.hyp}"{rc})'
-        return f'Alignment({self.op_type.name}: "{self.ref}" == {lc}"{self.hyp}"{rc})'
+            return f'Alignment({self.op_type.name}: {self.hyp_with_compound_markers} -> "{self.ref}")'
+        return f'Alignment({self.op_type.name}: "{self.hyp}" == "{self.ref}")'
 
 
 def op_type_powerset() -> chain:
