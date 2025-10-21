@@ -70,7 +70,7 @@ def test_representations() -> None:
     assert repr(match_alignment) == 'Alignment(MATCH: "test" == "test")'
 
     # Test ErrorAlign class representation
-    ea = ErrorAlign(ref="test", hyp="pest")
+    ea = ErrorAlign(ref="test", hyp="pest", word_level_pass=False)
     assert repr(ea) == 'ErrorAlign(ref="test", hyp="pest")'
 
     # Test Path class representation
