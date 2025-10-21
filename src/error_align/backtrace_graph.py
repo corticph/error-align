@@ -23,11 +23,11 @@ class Node:
         self._outgoing_edge_counts = {}
 
     @property
-    def index(self):
+    def index(self) -> tuple[int, int]:
         return (self.hyp_idx, self.ref_idx)
 
     @property
-    def offset_index(self):
+    def offset_index(self) -> tuple[int, int]:
         """Get the offset index of the node so indices match the hypothesis and reference strings.
 
         Root will be at (-1, -1).
@@ -42,22 +42,27 @@ class Node:
     def number_of_paths(self):
         return self._bwd_node_count * self._fwd_node_count
 
-    def number_of_ingoing_paths_via(self, op_type: OpType):
+    def number_of_ingoing_paths_via(self, op_type: OpType) -> int:
         """Get the number of paths going through this node via the given operation type.
 
         Args:
             op_type (OpType): The operation type to check.
 
+        Returns:
+            int: The number of ingoing paths via the given operation type.
         """
         if op_type not in self.parents:
             return 0
         return self._ingoing_edge_counts[op_type] * self.parents[op_type]._outgoing_edge_counts[op_type]
 
-    def number_of_outgoing_paths_via(self, op_type: OpType):
+    def number_of_outgoing_paths_via(self, op_type: OpType) -> int:
         """Get the number of paths going through this node via the given operation type.
 
         Args:
             op_type (OpType): The operation type to check.
+
+        Returns:
+            int: The number of outgoing paths via the given operation type.
 
         """
         if op_type not in self.children:
@@ -65,12 +70,12 @@ class Node:
         return self._outgoing_edge_counts[op_type] * self.children[op_type]._ingoing_edge_counts[op_type]
 
     @property
-    def is_terminal(self):
+    def is_terminal(self) -> bool:
         """Check if the node is a terminal node (i.e., it has no children)."""
         return len(self.children) == 0
 
     @property
-    def is_root(self):
+    def is_root(self) -> bool:
         """Check if the node is a root node (i.e., it has no parents)."""
         return len(self.parents) == 0
 

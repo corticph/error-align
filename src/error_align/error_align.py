@@ -73,8 +73,8 @@ class SubgraphMetadata:
         hyp_max_idx (int): The maximum index in the hypothesis text.
         ref_char_types (list[int]): List of character types for the reference text.
         hyp_char_types (list[int]): List of character types for the hypothesis text.
-        ref_index_map (list[int]): Index map for the reference text.
-        hyp_index_map (list[int]): Index map for the hypothesis text.
+        ref_idx_map (list[int]): Index map for the reference text.
+        hyp_idx_map (list[int]): Index map for the hypothesis text.
         backtrace_graph (BacktraceGraph): The backtrace graph for the subgraph.
         backtrace_node_set (set[tuple[int, int]]): Set of nodes in the backtrace graph.
         unambiguous_matches (set[tuple[int, int]]): Set of end node indices for unambiguous token span matches.
@@ -99,8 +99,8 @@ class SubgraphMetadata:
     hyp_max_idx: int = field(init=False)
     ref_char_types: list[int] = field(init=False)
     hyp_char_types: list[int] = field(init=False)
-    ref_index_map: list[int] = field(init=False)
-    hyp_index_map: list[int] = field(init=False)
+    ref_idx_map: list[int] = field(init=False)
+    hyp_idx_map: list[int] = field(init=False)
     backtrace_graph: BacktraceGraph = field(init=False)
     backtrace_node_set: set[tuple[int, int]] = field(init=False)
     unambiguous_matches: set[tuple[int, int]] = field(init=False)
@@ -118,8 +118,8 @@ class SubgraphMetadata:
         self.hyp_max_idx = len(self.hyp) - 1
         self.ref_char_types = _get_char_types(self.ref)
         self.hyp_char_types = _get_char_types(self.hyp)
-        self.ref_index_map = _create_index_map(self.ref_token_matches)
-        self.hyp_index_map = _create_index_map(self.hyp_token_matches)
+        self.ref_idx_map = _create_index_map(self.ref_token_matches)
+        self.hyp_idx_map = _create_index_map(self.hyp_token_matches)
 
         # First pass: Compute backtrace graph.
         _, backtrace_matrix = compute_error_align_distance_matrix(self.ref, self.hyp, backtrace=True)
@@ -494,7 +494,7 @@ class Path:
     def _get_delete_alignment(self, start_ref_idx: int, end_ref_idx: int) -> Alignment:
         """Get a DELETE alignment for a given reference slice."""
         ref_slice = slice(start_ref_idx, end_ref_idx)
-        ref_slice = self._translate_slice(ref_slice, self.src.ref_index_map)
+        ref_slice = self._translate_slice(ref_slice, self.src.ref_idx_map)
         return Alignment(
             op_type=OpType.DELETE,
             ref_slice=ref_slice,
@@ -504,7 +504,7 @@ class Path:
     def _get_insert_alignment(self, start_hyp_idx: int, end_hyp_idx: int) -> Alignment:
         """Get an INSERT alignment for a given hypothesis slice."""
         hyp_slice = slice(start_hyp_idx, end_hyp_idx)
-        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_index_map)
+        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_idx_map)
         return Alignment(
             op_type=OpType.INSERT,
             hyp_slice=hyp_slice,
@@ -522,8 +522,8 @@ class Path:
         """Get a MATCH or SUBSTITUTE alignment for given hypothesis and reference slices."""
         hyp_slice = slice(start_hyp_idx, end_hyp_idx)
         ref_slice = slice(start_ref_idx, end_ref_idx)
-        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_index_map)
-        ref_slice = self._translate_slice(ref_slice, self.src.ref_index_map)
+        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_idx_map)
+        ref_slice = self._translate_slice(ref_slice, self.src.ref_idx_map)
         is_match_segment = score == 0
         op_type = OpType.MATCH if is_match_segment else OpType.SUBSTITUTE
         return Alignment(
@@ -532,8 +532,8 @@ class Path:
             hyp_slice=hyp_slice,
             ref=self.src.ref_raw[ref_slice],
             hyp=self.src.hyp_raw[hyp_slice],
-            left_compound=self.src.hyp_index_map[start_hyp_idx] >= 0,
-            right_compound=self.src.hyp_index_map[end_hyp_idx - 1] >= 0,
+            left_compound=self.src.hyp_idx_map[start_hyp_idx] >= 0,
+            right_compound=self.src.hyp_idx_map[end_hyp_idx - 1] >= 0,
         )
 
     def _transition_to_child_node(self, ref_step: int, hyp_step: int):
@@ -564,7 +564,7 @@ class Path:
     def _end_insertion_segment(self, hyp_idx: int, ref_idx: int) -> None:
         """End the current segment, if criteria for an insertion are met."""
         hyp_slice = slice(self.last_hyp_idx + 1, hyp_idx + 1)
-        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_index_map)
+        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_idx_map)
         ref_is_empty = ref_idx == self.last_ref_idx
         if hyp_slice is not None and ref_is_empty:
             self._end_indices += ((hyp_idx, ref_idx, self._open_cost),)
@@ -573,9 +573,9 @@ class Path:
     def _end_segment(self) -> Union[None, "Path"]:
         """End the current segment, if criteria for an insertion, a substitution, or a match are met."""
         hyp_slice = slice(self.last_hyp_idx + 1, self.hyp_idx + 1)
-        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_index_map)
+        hyp_slice = self._translate_slice(hyp_slice, self.src.hyp_idx_map)
         ref_slice = slice(self.last_ref_idx + 1, self.ref_idx + 1)
-        ref_slice = self._translate_slice(ref_slice, self.src.ref_index_map)
+        ref_slice = self._translate_slice(ref_slice, self.src.ref_idx_map)
 
         assert ref_slice is not None
 
