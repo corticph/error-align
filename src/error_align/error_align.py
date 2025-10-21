@@ -17,6 +17,8 @@ from error_align.utils import (
     ensure_length_preservation,
 )
 
+SubspanDescriptor = Union["SubgraphMetadata", range, tuple[int, int]]
+
 
 def _embed_tokens(text_tokens: list[str]) -> str:
     """Embed tokens with delimiters."""
@@ -264,11 +266,7 @@ class ErrorAlign:
             alignments.append(alignment)
         return alignments
 
-    def _align_post_word_level(
-        self,
-        src: list[tuple[OpType, Union[SubgraphMetadata, range, tuple[int, int]]]],
-        beam_size: int,
-    ) -> list[Alignment]:
+    def _align_post_word_level(self, src: list[tuple[OpType, SubspanDescriptor]], beam_size: int) -> list[Alignment]:
         """Perform alignment after a word-level pass."""
         alignments = []
         for op_type, src_ in src:
@@ -326,9 +324,7 @@ class ErrorAlign:
         else:
             raise ValueError(f"Invalid operation type for insert/delete alignment: {op_type}")
 
-    def _prepare_subspans_with_word_level_pass(
-        self,
-    ) -> list[tuple[OpType, Union[SubgraphMetadata, range, tuple[int, int]]]]:
+    def _prepare_subspans_with_word_level_pass(self) -> list[tuple[OpType, SubspanDescriptor]]:
         """Perform a word-level alignment pass to identify unambiguous matches."""
 
         # Extract the word-level backtrace graph.
