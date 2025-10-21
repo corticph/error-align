@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "error-align"
-version = "0.1.0b3"
+version = "0.1.0b4"
 description = "Text-to-text alignment algorithm for speech recognition error analysis."
 authors = ["Lasse Borgholt <lb@corti.ai>"]
 license = "MIT"
