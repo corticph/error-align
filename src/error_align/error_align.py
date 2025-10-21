@@ -107,11 +107,6 @@ class SubgraphMetadata:
     backtrace_node_set: set[tuple[int, int]] = field(init=False)
     unambiguous_matches: set[tuple[int, int]] = field(init=False)
 
-    def __repr__(self):
-        ref_preview = self.ref if len(self.ref) < 20 else self.ref[:17] + "..."
-        hyp_preview = self.hyp if len(self.hyp) < 20 else self.hyp[:17] + "..."
-        return f'SubgraphMetadata(ref="{ref_preview}", hyp="{hyp_preview}")'
-
     def __post_init__(self):
         # Process reference and hypothesis texts and compute derived attributes.
         self.ref = _embed_tokens(self.ref_norm)
@@ -131,6 +126,11 @@ class SubgraphMetadata:
         # NOTE: Used for beam pruning during beam search.
         self.unambiguous_matches = self.backtrace_graph.get_unambiguous_token_span_matches(self.ref)
 
+    def __repr__(self):
+        ref_preview = self.ref if len(self.ref) < 20 else self.ref[:17] + "..."
+        hyp_preview = self.hyp if len(self.hyp) < 20 else self.hyp[:17] + "..."
+        return f'SubgraphMetadata(ref="{ref_preview}", hyp="{hyp_preview}")'
+
 
 class ErrorAlign:
     """Error alignment class that performs a two-pass alignment process."""
@@ -141,7 +141,7 @@ class ErrorAlign:
         hyp: str,
         tokenizer: callable = basic_tokenizer,
         normalizer: callable = basic_normalizer,
-        word_level_pass: bool = False,
+        word_level_pass: bool = True,
     ):
         """Initialize the error alignment with reference and hypothesis texts.
 
