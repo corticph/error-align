@@ -8,8 +8,7 @@ def error_align(
     tokenizer: callable = basic_tokenizer,
     normalizer: callable = basic_normalizer,
     beam_size: int = 100,
-    pbar: bool = False,
-    return_path: bool = False,
+    word_level_pass: bool = True,
 ) -> list[Alignment] | Path:
     """Perform error alignment between two sequences.
 
@@ -18,8 +17,9 @@ def error_align(
         hyp (str): The hypothesis sequence/transcript.
         tokenizer (callable): A function to tokenize the sequences. Must be regex-based and return Match objects.
         normalizer (callable): A function to normalize the tokens. Defaults to basic_normalizer.
-        pbar (bool): Whether to display a progress bar. Defaults to False.
-        return_path (bool): Whether to return the path object or just the alignments. Defaults to False.
+        beam_size (int): The beam size for beam search alignment. Defaults to 100.
+        word_level_pass (bool): Use an initial word-level pass to identify unambiguous matches. Defaults to True.
+            Note that this is not described in the original paper.
 
     Returns:
         list[tuple[str, str, OpType]]: A list of tuples containing aligned reference token,
@@ -31,8 +31,7 @@ def error_align(
         hyp,
         tokenizer=tokenizer,
         normalizer=normalizer,
+        word_level_pass=word_level_pass,
     ).align(
         beam_size=beam_size,
-        pbar=pbar,
-        return_path=return_path,
     )

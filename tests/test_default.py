@@ -2,6 +2,7 @@ from typeguard import suppress_type_checks
 
 from error_align import ErrorAlign, error_align
 from error_align.edit_distance import compute_levenshtein_distance_matrix
+from error_align.error_align import Path
 from error_align.utils import OpType, categorize_char
 
 
@@ -11,7 +12,7 @@ def test_error_align() -> None:
     ref = "This is a substitution test deleted."
     hyp = "Inserted this is a contribution test."
 
-    alignments = error_align(ref, hyp, pbar=True)
+    alignments = error_align(ref, hyp)
     expected_ops = [
         OpType.INSERT,  # Inserted
         OpType.MATCH,  # This
@@ -73,8 +74,8 @@ def test_representations() -> None:
     assert repr(ea) == 'ErrorAlign(ref="test", hyp="pest")'
 
     # Test Path class representation
-    path = ea.align(beam_size=10, return_path=True)
-    assert repr(path) == f"Path(({path.ref_idx}, {path.hyp_idx}), score={path.cost})"
+    path = Path(src=ea._src)
+    assert repr(path) == "Path((-1, -1), score=0)"
 
 
 @suppress_type_checks
@@ -99,9 +100,9 @@ def test_backtrace_graph() -> None:
     hyp = "This is a pest."
 
     # Create ErrorAlign instance and generate backtrace graph.
-    ea = ErrorAlign(ref, hyp)
+    ea = ErrorAlign(ref, hyp, word_level_pass=False)
     ea.align(beam_size=10)
-    graph = ea._backtrace_graph
+    graph = ea._src.backtrace_graph
 
     # Check basic properties of the graph.
     assert isinstance(graph.get_path(), list)

@@ -1,7 +1,7 @@
 import random
 from collections import Counter
 
-from error_align.utils import OP_TYPE_COMBO_MAP, OpType
+from error_align.utils import END_DELIMITER, OP_TYPE_COMBO_MAP, START_DELIMITER, OpType
 
 
 class Node:
@@ -168,26 +168,64 @@ class BacktraceGraph:
 
         return path
 
-    def get_unambiguous_matches(self, ref):
-        """Get word spans that are unambiguously matched (i.e., only one path in backtrace graph).
+    def get_unambiguous_node_matches(self) -> list[tuple[int, int]]:
+        """Get nodes that can only be accounted for by a match.
 
         Returns:
-            list[Node]: A list of nodes representing the unambiguous path.
+            list[tuple[int, int]]: A list of index tuples representing the unambiguous node matches.
 
         """
-        ref = "*" + ref  # Index offset
+        match_indices = set()
+        match_per_token = {
+            "ref": Counter(),
+            "hyp": Counter(),
+        }
+        ref_op_types = {OpType.MATCH, OpType.SUBSTITUTE, OpType.DELETE}
+        hyp_op_types = {OpType.MATCH, OpType.SUBSTITUTE, OpType.INSERT}
+
+        for (hyp_idx, ref_idx), node in self.nodes.items():
+            # Identify all nodes at which a match occurs.
+            if len(node.parents) == 1 and OpType.MATCH in node.parents:
+                match_indices.add((hyp_idx, ref_idx))
+
+            # Count number of paths passing through each token.
+            if ref_op_types.intersection(node.parents):
+                match_per_token["ref"][ref_idx] += 1
+            if hyp_op_types.intersection(node.parents):
+                match_per_token["hyp"][hyp_idx] += 1
+
+        # Collect only those matches that are unambiguous on both sides.
+        unambiguous_matches = []
+        for hyp_idx, ref_idx in match_indices:
+            if match_per_token["ref"][ref_idx] == 1 and match_per_token["hyp"][hyp_idx] == 1:
+                unambiguous_matches.append((hyp_idx - 1, ref_idx - 1))  # Offset indices
+
+        return sorted(unambiguous_matches, key=lambda n: n[1])
+
+    def get_unambiguous_token_span_matches(self, ref):
+        """Get word spans (i.e., <...>) that are unambiguously matched.
+
+        That is, there is only one subpath that can account for the span using MATCH operations.
+
+        Other subpaths that include INSERT, DELETE, SUBSTITUTE operations are not considered.
+
+        Returns:
+            list[tuple[int, int]]: A list of index tuples representing the end node of unambiguous span matches.
+
+        """
+        ref = "_" + ref  # NOTE: Implicit index offset for root node.
         mono_match_end_nodes = set()
         ref_idxs = Counter()
         hyp_idxs = Counter()
         for (hyp_idx, ref_idx), node in self.nodes.items():
-            if OpType.MATCH in node.parents and ref[ref_idx] == "<":
+            if OpType.MATCH in node.parents and ref[ref_idx] == START_DELIMITER:
                 _ref_idx, _hyp_idx = ref_idx + 1, hyp_idx + 1
                 while True:
                     if (_hyp_idx, _ref_idx) not in self.nodes:
                         break
                     if OpType.MATCH not in self.nodes[(_hyp_idx, _ref_idx)].parents:
                         break
-                    if ref[_ref_idx] == ">":
+                    if ref[_ref_idx] == END_DELIMITER:
                         end_index = (_hyp_idx, _ref_idx)
                         mono_match_end_nodes.add(end_index)
                         ref_idxs[_ref_idx] += 1

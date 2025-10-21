@@ -28,6 +28,7 @@ def _get_optimal_word_alignment_values(ref_token: str, hyp_token: str):
 
     return len(hyp_token), len(ref_token), diag_cost
 
+
 class OptimalWordAlign:
     """Optimal word-level alignment based on global-to-local edits (GLE) metric."""
 

@@ -97,7 +97,7 @@ def compute_distance_matrix(
             # Track possible operations (note that the order of operations matters).
             if backtrace:
                 pos_ops = tuple()
-                if diag_val == new_val and diag_cost == 0:
+                if diag_val == new_val and diag_cost <= 0:
                     pos_ops += (OpType.MATCH,)
                 if ins_val == new_val:
                     pos_ops += (OpType.INSERT,)

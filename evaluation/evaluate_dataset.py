@@ -110,7 +110,7 @@ def get_error_alignments(ref: str, hyp: str, beam_size: int):
         List[Alignment]: A list of alignment objects.
 
     """
-    return ErrorAlign(ref=ref, hyp=hyp).align(beam_size=beam_size, pbar=False)
+    return ErrorAlign(ref=ref, hyp=hyp, word_level_pass=True).align(beam_size=beam_size)
 
 
 def get_optimal_word_alignments(ref: str, hyp: str):
@@ -274,8 +274,6 @@ def main(transcript_file: str, only_error_align: bool, beam_size: int, save_resu
         PronouncerLex("/home/lb/repos/power-asr/lex/cmudict.rep.json").pronounce if language_code == "en" else None
     )
 
-    # dataset = dataset.select(range(792, 794))
-
     c_n, p_n = 0, 0
     for example in tqdm(dataset):
         ref, hyp = example["ref"], example["hyp"]
@@ -323,7 +321,7 @@ def main(transcript_file: str, only_error_align: bool, beam_size: int, save_resu
             norm_edits = c_n if edits == "character_edits" else p_n
             score = norm_edits / abs_edits if abs_edits > 0 else 1.0
             duration = method_metrics["duration"]
-            print(f"{method_name}: score = {score:.4f} | edits = {abs_edits}/{norm_edits} | time = {duration:.1f}s")
+            print(f"{method_name}: score = {score:.4f} | edits = {abs_edits}/{norm_edits} | time = {duration:.2f}s")
             method_metrics["score"] = score
 
     # Convert edit lists to numpy arrays for statistical tests.
