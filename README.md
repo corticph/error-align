@@ -66,9 +66,9 @@ Alignment(INSERT: "period")
 ## Citation and Research
 
 ```
-@article{corticph2021alignment,
+@article{borgholt2025text,
   title={A Text-To-Text Alignment Algorithm for Better Evaluation of Modern Speech Recognition Systems},
-  author={corticph, Lasse and Havtorn, Jakob and Igel, Christian and Maal{\o}e, Lars and Tan, Zheng-Hua},
+  author={Borgholt, Lasse and Havtorn, Jakob and Igel, Christian and Maal{\o}e, Lars and Tan, Zheng-Hua},
   journal={arXiv preprint arXiv:2509.24478},
   year={2025}
 }
