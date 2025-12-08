@@ -1,4 +1,4 @@
-from error_align.error_align import ErrorAlign, Path
+from error_align.error_align import ErrorAlign
 from error_align.utils import Alignment, basic_normalizer, basic_tokenizer
 
 
@@ -9,7 +9,7 @@ def error_align(
     normalizer: callable = basic_normalizer,
     beam_size: int = 100,
     word_level_pass: bool = True,
-) -> list[Alignment] | Path:
+) -> list[Alignment]:
     """Perform error alignment between two sequences.
 
     Args:
