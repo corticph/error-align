@@ -27,6 +27,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry install --with test
+          pip install .
 
       - name: Run tests with coverage
         run: poetry run pytest
