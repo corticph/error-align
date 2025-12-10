@@ -275,6 +275,7 @@ def _cpp_path_to_py_path(cpp_path) -> Path:
     py_path.open_cost = cpp_path.open_cost
     py_path.at_unambiguous_match_node = cpp_path.at_unambiguous_match_node
     py_path.end_indices = cpp_path.end_indices
+    py_path.sort_id = cpp_path.sort_id
     return py_path
 
 

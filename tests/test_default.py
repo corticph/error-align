@@ -3,11 +3,12 @@ from typeguard import suppress_type_checks
 
 from error_align import error_align
 from error_align.backtrace_graph import BacktraceGraph
+from error_align.beam_search import _cpp_path_to_py_path
 from error_align.beam_search import error_align_beam_search as python_error_align_beam_search
 from error_align.edit_distance import compute_error_align_distance_matrix, compute_levenshtein_distance_matrix
 from error_align.error_align import prepare_graph_metadata
 from error_align.graph_metadata import SubgraphMetadata
-from error_align.utils import OpType, categorize_char
+from error_align.utils import Alignment, OpType, categorize_char, ensure_length_preservation
 
 
 def test_error_align() -> None:
@@ -48,13 +49,14 @@ def test_beam_search_cpp_vs_python() -> None:
     )
 
     path_cpp = cpp_error_align_beam_search(src=subgraph_metadata)
+    path_cpp_converted = _cpp_path_to_py_path(path_cpp)
     path_python = python_error_align_beam_search(src=subgraph_metadata)
 
-    assert path_cpp.open_cost == path_python.open_cost
-    assert path_cpp.closed_cost == path_python.closed_cost
-    assert path_cpp.cost == path_python.cost
-    assert path_cpp.norm_cost == path_python.norm_cost
-    assert path_cpp.sort_id == path_python.sort_id
+    assert path_cpp_converted.open_cost == path_python.open_cost
+    assert path_cpp_converted.closed_cost == path_python.closed_cost
+    assert path_cpp_converted.cost == path_python.cost
+    assert path_cpp_converted.norm_cost == path_python.norm_cost
+    assert path_cpp_converted.sort_id == path_python.sort_id
 
 
 def test_error_align_identical() -> None:
@@ -154,3 +156,62 @@ def test_levenshtein_distance_matrix() -> None:
     distance_matrix = compute_levenshtein_distance_matrix(ref, hyp)
 
     assert distance_matrix[-1][-1] == 3
+
+
+def test_alignment_validation() -> None:
+    """Test alignment validation for mismatched inputs."""
+
+    try:
+        Alignment(OpType.MATCH, ref="something", hyp=None)
+        raise AssertionError("Expected ValueError for MATCH with None hyp.")
+    except ValueError:
+        pass
+
+    try:
+        Alignment(OpType.INSERT, ref="something", hyp=None)
+        raise AssertionError("Expected ValueError for INSERT with None hyp.")
+    except ValueError:
+        pass
+
+    try:
+        Alignment(OpType.DELETE, ref=None, hyp="something")
+        raise AssertionError("Expected ValueError for DELETE with None ref.")
+    except ValueError:
+        pass
+
+    try:
+        Alignment(OpType.SUBSTITUTE, ref=None, hyp="something")
+        raise AssertionError("Expected ValueError for SUBSTITUTE with None ref.")
+    except ValueError:
+        pass
+
+
+def test_alignment_representation() -> None:
+    """Test the string representation of Alignment objects."""
+
+    alignment = Alignment(OpType.MATCH, ref="test", hyp="test")
+    assert repr(alignment) == 'Alignment(MATCH: "test" == "test")'
+
+    alignment = Alignment(OpType.INSERT, ref=None, hyp="inserted")
+    assert repr(alignment) == 'Alignment(INSERT: "inserted")'
+
+    alignment = Alignment(OpType.DELETE, ref="deleted", hyp=None)
+    assert repr(alignment) == 'Alignment(DELETE: "deleted")'
+
+    alignment = Alignment(OpType.SUBSTITUTE, ref="old", hyp="new")
+    assert repr(alignment) == 'Alignment(SUBSTITUTE: "new" -> "old")'
+
+
+def test_normalization_guardrails() -> None:
+    """Test normalization guardrails."""
+
+    def bad_normalizer(text: str) -> str:
+        return text + "_"
+
+    normalizer = ensure_length_preservation(bad_normalizer)
+
+    try:
+        normalizer("test")
+        raise AssertionError("Expected ValueError for length mismatch.")
+    except ValueError:
+        pass
