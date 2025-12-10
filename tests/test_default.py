@@ -1,8 +1,14 @@
+from error_align._cpp_beam_search import error_align_beam_search as cpp_error_align_beam_search
 from typeguard import suppress_type_checks
 
-from error_align import ErrorAlign, error_align
-from error_align.edit_distance import compute_levenshtein_distance_matrix
-from error_align.utils import OpType, categorize_char
+from error_align import error_align
+from error_align.backtrace_graph import BacktraceGraph
+from error_align.beam_search import _cpp_path_to_py_path
+from error_align.beam_search import error_align_beam_search as python_error_align_beam_search
+from error_align.edit_distance import compute_error_align_distance_matrix, compute_levenshtein_distance_matrix
+from error_align.error_align import prepare_graph_metadata
+from error_align.graph_metadata import SubgraphMetadata
+from error_align.utils import Alignment, OpType, categorize_char, ensure_length_preservation
 
 
 def test_error_align() -> None:
@@ -11,7 +17,7 @@ def test_error_align() -> None:
     ref = "This is a substitution test deleted."
     hyp = "Inserted this is a contribution test."
 
-    alignments = error_align(ref, hyp, pbar=True)
+    alignments = error_align(ref, hyp)
     expected_ops = [
         OpType.INSERT,  # Inserted
         OpType.MATCH,  # This
@@ -26,7 +32,34 @@ def test_error_align() -> None:
         assert alignment.op_type == op
 
 
-def test_error_align_full_match() -> None:
+def test_beam_search_cpp_vs_python() -> None:
+    """Test that the C++ and Python beam search implementations produce the same results."""
+
+    ref = "This is a substitution test deleted."
+    hyp = "Inserted this is a contribution test."
+
+    graph_metadata = prepare_graph_metadata(ref, hyp)
+    subgraph_metadata = SubgraphMetadata(
+        ref_raw=graph_metadata.ref_raw,
+        hyp_raw=graph_metadata.hyp_raw,
+        ref_token_matches=graph_metadata.ref_token_matches,
+        hyp_token_matches=graph_metadata.hyp_token_matches,
+        ref_norm=graph_metadata.ref_norm,
+        hyp_norm=graph_metadata.hyp_norm,
+    )
+
+    path_cpp = cpp_error_align_beam_search(src=subgraph_metadata)
+    path_cpp_converted = _cpp_path_to_py_path(path_cpp)
+    path_python = python_error_align_beam_search(src=subgraph_metadata)
+
+    assert path_cpp_converted.open_cost == path_python.open_cost
+    assert path_cpp_converted.closed_cost == path_python.closed_cost
+    assert path_cpp_converted.cost == path_python.cost
+    assert path_cpp_converted.norm_cost == path_python.norm_cost
+    assert path_cpp_converted.sort_id == path_python.sort_id
+
+
+def test_error_align_identical() -> None:
     """Test error alignment for full match."""
 
     ref = "This is a test."
@@ -68,26 +101,18 @@ def test_representations() -> None:
     match_alignment = error_align("test", "test")[0]
     assert repr(match_alignment) == 'Alignment(MATCH: "test" == "test")'
 
-    # Test ErrorAlign class representation
-    ea = ErrorAlign(ref="test", hyp="pest")
-    assert repr(ea) == 'ErrorAlign(ref="test", hyp="pest")'
-
-    # Test Path class representation
-    path = ea.align(beam_size=10, return_path=True)
-    assert repr(path) == f"Path(({path.ref_idx}, {path.hyp_idx}), score={path.cost})"
-
 
 @suppress_type_checks
 def test_input_type_checks() -> None:
     """Test input type checks for ErrorAlign class."""
 
     try:
-        _ = ErrorAlign(ref=123, hyp="valid")  # type: ignore
+        _ = error_align(ref=123, hyp="valid")  # type: ignore
     except TypeError as e:
         assert str(e) == "Reference sequence must be a string."
 
     try:
-        _ = ErrorAlign(ref="valid", hyp=456)  # type: ignore
+        _ = error_align(ref="valid", hyp=456)  # type: ignore
     except TypeError as e:
         assert str(e) == "Hypothesis sequence must be a string."
 
@@ -99,23 +124,27 @@ def test_backtrace_graph() -> None:
     hyp = "This is a pest."
 
     # Create ErrorAlign instance and generate backtrace graph.
-    ea = ErrorAlign(ref, hyp)
-    ea.align(beam_size=10)
-    graph = ea._backtrace_graph
+    graph_metadata = prepare_graph_metadata(ref, hyp)
+    subgraph_metadata = SubgraphMetadata(
+        ref_raw=graph_metadata.ref_raw,
+        hyp_raw=graph_metadata.hyp_raw,
+        ref_token_matches=graph_metadata.ref_token_matches,
+        hyp_token_matches=graph_metadata.hyp_token_matches,
+        ref_norm=graph_metadata.ref_norm,
+        hyp_norm=graph_metadata.hyp_norm,
+    )
+    _, backtrace_matrix = compute_error_align_distance_matrix(
+        subgraph_metadata.ref,
+        subgraph_metadata.hyp,
+        backtrace=True,
+    )
+    graph = BacktraceGraph(backtrace_matrix)
 
     # Check basic properties of the graph.
     assert isinstance(graph.get_path(), list)
     assert isinstance(graph.get_path(sample=True), list)
-    assert graph.number_of_paths == 3
     for index in graph._iter_topological_order():
         assert isinstance(index, tuple)
-
-    # Check specific node properties.
-    node = graph.get_node(2, 2)
-    assert node.number_of_ingoing_paths_via(OpType.MATCH) == 3
-    assert node.number_of_outgoing_paths_via(OpType.MATCH) == 3
-    assert node.number_of_ingoing_paths_via(OpType.INSERT) == 0
-    assert node.number_of_outgoing_paths_via(OpType.INSERT) == 0
 
 
 def test_levenshtein_distance_matrix() -> None:
@@ -126,4 +155,63 @@ def test_levenshtein_distance_matrix() -> None:
 
     distance_matrix = compute_levenshtein_distance_matrix(ref, hyp)
 
-    assert distance_matrix[-1][-1] == 3  # The Levenshtein distance between "kitten" and "sitting" is 3
+    assert distance_matrix[-1][-1] == 3
+
+
+def test_alignment_validation() -> None:
+    """Test alignment validation for mismatched inputs."""
+
+    try:
+        Alignment(OpType.MATCH, ref="something", hyp=None)
+        raise AssertionError("Expected ValueError for MATCH with None hyp.")
+    except ValueError:
+        pass
+
+    try:
+        Alignment(OpType.INSERT, ref="something", hyp=None)
+        raise AssertionError("Expected ValueError for INSERT with None hyp.")
+    except ValueError:
+        pass
+
+    try:
+        Alignment(OpType.DELETE, ref=None, hyp="something")
+        raise AssertionError("Expected ValueError for DELETE with None ref.")
+    except ValueError:
+        pass
+
+    try:
+        Alignment(OpType.SUBSTITUTE, ref=None, hyp="something")
+        raise AssertionError("Expected ValueError for SUBSTITUTE with None ref.")
+    except ValueError:
+        pass
+
+
+def test_alignment_representation() -> None:
+    """Test the string representation of Alignment objects."""
+
+    alignment = Alignment(OpType.MATCH, ref="test", hyp="test")
+    assert repr(alignment) == 'Alignment(MATCH: "test" == "test")'
+
+    alignment = Alignment(OpType.INSERT, ref=None, hyp="inserted")
+    assert repr(alignment) == 'Alignment(INSERT: "inserted")'
+
+    alignment = Alignment(OpType.DELETE, ref="deleted", hyp=None)
+    assert repr(alignment) == 'Alignment(DELETE: "deleted")'
+
+    alignment = Alignment(OpType.SUBSTITUTE, ref="old", hyp="new")
+    assert repr(alignment) == 'Alignment(SUBSTITUTE: "new" -> "old")'
+
+
+def test_normalization_guardrails() -> None:
+    """Test normalization guardrails."""
+
+    def bad_normalizer(text: str) -> str:
+        return text + "_"
+
+    normalizer = ensure_length_preservation(bad_normalizer)
+
+    try:
+        normalizer("test")
+        raise AssertionError("Expected ValueError for length mismatch.")
+    except ValueError:
+        pass

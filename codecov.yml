@@ -1,2 +1,11 @@
 ignore:
   - "src/error_align/baselines/*"
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true

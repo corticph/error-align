@@ -206,9 +206,9 @@ class ExpandedAlignment:
 
     def hyp_oriented_alignment(self, hyp_only=True):
         '''
-        Returns all alignment tokens. 
+        Returns all alignment tokens.
         If an S slot is an multiword alignment, duplicates AlignLabels.substitution by the capacity.
-        TODO: Move to subclass. 
+        TODO: Move to subclass.
         '''
         alignment = []
         ref_align_len, hyp_align_len = zip(*self.alignment_capacity())
@@ -411,7 +411,7 @@ class Levenshtein:
                            labels=(rlabel, hlabel, align))
                 chart.appendleft((prev_i, prev_j))
 
-            if time() - start > 120:
+            if time() - start > 30:
                 print("\nWarning: Long computation time\n")
                 raise AssertionError("Computation took too long")
         return G

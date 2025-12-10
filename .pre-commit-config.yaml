@@ -4,6 +4,7 @@ repos:
     rev: v6.0.0
     hooks:
     -   id: check-added-large-files  # Check for large files.
+        exclude: ^src/error_align/baselines/power/cmudict.rep.json$
     -   id: check-ast  # Check Python file syntax using the ast module.
     -   id: check-json  # Check JSON file syntax.
     -   id: check-merge-conflict  # Check for merge conflict strings.
@@ -18,6 +19,7 @@ repos:
     hooks:
       - id: ruff-format
       - id: ruff-check
+        args: ["--fix"]
 -   repo: https://github.com/asottile/yesqa
     rev: v1.5.0
     hooks:

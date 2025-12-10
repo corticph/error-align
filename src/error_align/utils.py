@@ -25,6 +25,22 @@ class Alignment:
     left_compound: bool = False
     right_compound: bool = False
 
+    def __post_init__(self):
+        if self.op_type == OpType.MATCH:
+            if self.ref is None or self.hyp is None:
+                raise ValueError("MATCH operation must have non-empty ref or hyp.")
+            if self.left_compound or self.right_compound:
+                raise ValueError("MATCH operation cannot have compound markers.")
+        elif self.op_type == OpType.INSERT:
+            if self.hyp is None or self.ref is not None:
+                raise ValueError("INSERT operation must have non-empty hyp and empty ref.")
+        elif self.op_type == OpType.DELETE:
+            if self.hyp is not None or self.ref is None:
+                raise ValueError("DELETE operation must have non-empty ref and empty hyp.")
+        elif self.op_type == OpType.SUBSTITUTE:
+            if self.ref is None or self.hyp is None:
+                raise ValueError("SUBSTITUTE operation must have both ref and hyp.")
+
     @property
     def hyp_with_compound_markers(self) -> str:
         """Return the hypothesis with compound markers if applicable."""
@@ -36,7 +52,7 @@ class Alignment:
         if self.op_type == OpType.DELETE:
             return f'Alignment({self.op_type.name}: "{self.ref}")'
         if self.op_type == OpType.INSERT:
-            return f'Alignment({self.op_type.name}: {self.hyp_with_compound_markers})'
+            return f"Alignment({self.op_type.name}: {self.hyp_with_compound_markers})"
         if self.op_type == OpType.SUBSTITUTE:
             return f'Alignment({self.op_type.name}: {self.hyp_with_compound_markers} -> "{self.ref}")'
         return f'Alignment({self.op_type.name}: "{self.hyp}" == "{self.ref}")'
@@ -113,11 +129,6 @@ def categorize_char(c: str) -> int:
     return 3  # NOTE: Unvoiced characters (only apostrophes are expected by default).
 
 
-def get_manhattan_distance(a: tuple[int, int], b: tuple[int, int]) -> int:
-    """Calculate the Manhattan distance between two points a and b."""
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
-
-
 def basic_tokenizer(text: str) -> list:
     """Default tokenizer that splits text into words based on whitespace.
 
@@ -162,3 +173,40 @@ def ensure_length_preservation(normalizer: callable) -> callable:
         return normalized
 
     return wrapper
+
+
+def unpack_regex_match(tokenizer: callable) -> callable:
+    """Unpack a regex Match object to extract the matched string.
+
+    Args:
+        tokenizer (callable): A function to tokenize the sequences. Must be regex-based and return Match objects.
+
+    Returns:
+        callable: A function that unpacks a list of Match objects into tuples of (matched string, span).
+
+    """
+
+    def wrapper(text: str, *args: list, **kwargs: dict) -> list[tuple[str, tuple[int, int]]]:
+        matches = tokenizer(text, *args, **kwargs)
+        return [(match.group(), match.span()) for match in matches]
+
+    return wrapper
+
+
+def translate_slice(segment_slice: slice, index_map: list[int]) -> None | slice:
+    """Translate a slice from the alignment sequence back to the original sequence.
+
+    Args:
+        segment_slice (slice): The slice in the alignment sequence.
+        index_map (list[int]): The mapping from alignment indices to original sequence indices.
+
+    Returns:
+        None | slice: The translated slice in the original sequence, or None if no valid indices.
+
+    """
+    slice_indices = index_map[segment_slice]
+    slice_indices = list(filter(lambda x: x >= 0, slice_indices))
+    if len(slice_indices) == 0:
+        return None
+    start, end = int(slice_indices[0]), int(slice_indices[-1] + 1)
+    return slice(start, end)

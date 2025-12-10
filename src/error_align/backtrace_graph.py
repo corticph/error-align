@@ -1,7 +1,7 @@
 import random
 from collections import Counter
 
-from error_align.utils import OP_TYPE_COMBO_MAP, OpType
+from error_align.utils import END_DELIMITER, OP_TYPE_COMBO_MAP, START_DELIMITER, OpType
 
 
 class Node:
@@ -14,20 +14,12 @@ class Node:
         self.children = {}
         self.parents = {}
 
-        # Used to count the number of paths going through this node.
-        self._bwd_node_count = 0
-        self._fwd_node_count = 0
-
-        # Used to store the operations that lead to this node.
-        self._ingoing_edge_counts = {}
-        self._outgoing_edge_counts = {}
-
     @property
-    def index(self):
+    def index(self) -> tuple[int, int]:
         return (self.hyp_idx, self.ref_idx)
 
     @property
-    def offset_index(self):
+    def offset_index(self) -> tuple[int, int]:
         """Get the offset index of the node so indices match the hypothesis and reference strings.
 
         Root will be at (-1, -1).
@@ -39,38 +31,12 @@ class Node:
         return (self.hyp_idx - 1, self.ref_idx - 1)
 
     @property
-    def number_of_paths(self):
-        return self._bwd_node_count * self._fwd_node_count
-
-    def number_of_ingoing_paths_via(self, op_type: OpType):
-        """Get the number of paths going through this node via the given operation type.
-
-        Args:
-            op_type (OpType): The operation type to check.
-
-        """
-        if op_type not in self.parents:
-            return 0
-        return self._ingoing_edge_counts[op_type] * self.parents[op_type]._outgoing_edge_counts[op_type]
-
-    def number_of_outgoing_paths_via(self, op_type: OpType):
-        """Get the number of paths going through this node via the given operation type.
-
-        Args:
-            op_type (OpType): The operation type to check.
-
-        """
-        if op_type not in self.children:
-            return 0
-        return self._outgoing_edge_counts[op_type] * self.children[op_type]._ingoing_edge_counts[op_type]
-
-    @property
-    def is_terminal(self):
+    def is_terminal(self) -> bool:
         """Check if the node is a terminal node (i.e., it has no children)."""
         return len(self.children) == 0
 
     @property
-    def is_root(self):
+    def is_root(self) -> bool:
         """Check if the node is a root node (i.e., it has no parents)."""
         return len(self.parents) == 0
 
@@ -107,19 +73,8 @@ class BacktraceGraph:
 
             # Sort nodes by their indices to ensure topological order.
             self._nodes = dict(sorted(self._nodes.items(), key=lambda item: (item[0][0], item[0][1])))
-            self._set_path_and_node_counts()  # TODO: Consider to do this lazily. Shouldn't be too expensive.
 
         return self._nodes
-
-    @property
-    def number_of_paths(self):
-        """Count the number of paths in the graph.
-
-        Returns:
-            int: The number of paths.
-
-        """
-        return self.get_node(0, 0)._bwd_node_count
 
     def get_node(self, hyp_idx, ref_idx):
         """Get the node at the given index.
@@ -168,26 +123,64 @@ class BacktraceGraph:
 
         return path
 
-    def get_unambiguous_matches(self, ref):
-        """Get word spans that are unambiguously matched (i.e., only one path in backtrace graph).
+    def get_unambiguous_node_matches(self) -> list[tuple[int, int]]:
+        """Get nodes that can only be accounted for by a match.
 
         Returns:
-            list[Node]: A list of nodes representing the unambiguous path.
+            list[tuple[int, int]]: A list of index tuples representing the unambiguous node matches.
 
         """
-        ref = "*" + ref  # Index offset
+        match_indices = set()
+        match_per_token = {
+            "ref": Counter(),
+            "hyp": Counter(),
+        }
+        ref_op_types = {OpType.MATCH, OpType.SUBSTITUTE, OpType.DELETE}
+        hyp_op_types = {OpType.MATCH, OpType.SUBSTITUTE, OpType.INSERT}
+
+        for (hyp_idx, ref_idx), node in self.nodes.items():
+            # Identify all nodes at which a match occurs.
+            if len(node.parents) == 1 and OpType.MATCH in node.parents:
+                match_indices.add((hyp_idx, ref_idx))
+
+            # Count number of paths passing through each token.
+            if ref_op_types.intersection(node.parents):
+                match_per_token["ref"][ref_idx] += 1
+            if hyp_op_types.intersection(node.parents):
+                match_per_token["hyp"][hyp_idx] += 1
+
+        # Collect only those matches that are unambiguous on both sides.
+        unambiguous_matches = []
+        for hyp_idx, ref_idx in match_indices:
+            if match_per_token["ref"][ref_idx] == 1 and match_per_token["hyp"][hyp_idx] == 1:
+                unambiguous_matches.append((hyp_idx - 1, ref_idx - 1))  # Offset indices
+
+        return sorted(unambiguous_matches, key=lambda n: n[1])
+
+    def get_unambiguous_token_span_matches(self, ref):
+        """Get word spans (i.e., <...>) that are unambiguously matched.
+
+        That is, there is only one subpath that can account for the span using MATCH operations.
+
+        Other subpaths that include INSERT, DELETE, SUBSTITUTE operations are not considered.
+
+        Returns:
+            list[tuple[int, int]]: A list of index tuples representing the end node of unambiguous span matches.
+
+        """
+        ref = "_" + ref  # NOTE: Implicit index offset for root node.
         mono_match_end_nodes = set()
         ref_idxs = Counter()
         hyp_idxs = Counter()
         for (hyp_idx, ref_idx), node in self.nodes.items():
-            if OpType.MATCH in node.parents and ref[ref_idx] == "<":
+            if OpType.MATCH in node.parents and ref[ref_idx] == START_DELIMITER:
                 _ref_idx, _hyp_idx = ref_idx + 1, hyp_idx + 1
                 while True:
                     if (_hyp_idx, _ref_idx) not in self.nodes:
                         break
                     if OpType.MATCH not in self.nodes[(_hyp_idx, _ref_idx)].parents:
                         break
-                    if ref[_ref_idx] == ">":
+                    if ref[_ref_idx] == END_DELIMITER:
                         end_index = (_hyp_idx, _ref_idx)
                         mono_match_end_nodes.add(end_index)
                         ref_idxs[_ref_idx] += 1
@@ -207,7 +200,7 @@ class BacktraceGraph:
 
     def _iter_topological_order(self, reverse=False):
         """Iterate through the nodes in topological order."""
-        if reversed:
+        if reverse:
             for i in reversed(range(self.hyp_dim)):
                 for j in reversed(range(self.ref_dim)):
                     yield (i, j)
@@ -229,30 +222,3 @@ class BacktraceGraph:
             parent_node = self._parent_index_from_op_type(*node.index, op_type)
             node.parents[op_type] = parent_node
             parent_node.children[op_type] = node
-
-    def _set_path_and_node_counts(self):
-        """Count the number of paths going through any node in the graph using the forward-backward algorithm."""
-        ordered_nodes = list(self.nodes.values())
-        root_node = ordered_nodes[0]
-        terminal_node = ordered_nodes[-1]
-        assert root_node.is_root, "The first node must be a root node."
-        assert terminal_node.is_terminal, "The last node must be a terminal node."
-
-        # Forward pass
-        ordered_nodes[0]._fwd_node_count = 1
-        for node in ordered_nodes[1:]:
-            for op_type, parent in node.parents.items():
-                node._fwd_node_count += parent._fwd_node_count
-                node._ingoing_edge_counts[op_type] = parent._fwd_node_count
-
-        # Backward pass
-        ordered_nodes[-1]._bwd_node_count = 1
-        for node in reversed(ordered_nodes[:-1]):
-            for op_type, child in node.children.items():
-                node._bwd_node_count += child._bwd_node_count
-                node._outgoing_edge_counts[op_type] = child._bwd_node_count
-
-        # Validate that the number of forward and backward paths are equal
-        assert root_node._bwd_node_count == terminal_node._fwd_node_count, (
-            "The number of forward and backward paths must be equal."
-        )

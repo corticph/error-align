@@ -1,10 +1,20 @@
-[tool.poetry]
+[build-system]
+requires = [
+  "scikit-build-core>=0.9",
+  "pybind11>=2.12",
+  "cmake>=3.18",
+  "ninja>=1.10",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
 name = "error-align"
-version = "0.1.0b3"
+version = "0.1.0b5"
 description = "Text-to-text alignment algorithm for speech recognition error analysis."
-authors = ["Lasse Borgholt <lb@corti.ai>"]
-license = "MIT"
-urls = { "Homepage" = "https://github.com/corticph/error-align" }
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "MIT" }
+authors = [{ name = "Lasse Borgholt", email = "lb@corti.ai" }]
 keywords = ["speech-recognition", "text-alignment", "NLP", "evaluation"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -19,38 +29,36 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
 ]
-readme = "README.md"
-
-packages = [
-    { include = 'error_align', from = 'src' },
+dependencies = [
+    "tqdm>=4.67.1",
+    "unidecode>=1.4.0",
+    "regex>=2025.9.18",
 ]
 
-[tool.poetry.dependencies]
+[project.urls]
+Homepage = "https://github.com/corticph/error-align"
 
-# Core dependencies
-python = ">=3.11,<3.14"
-tqdm = "^4.67.1"
-unidecode = "^1.4.0"
-regex = "^2025.9.18"
+[project.optional-dependencies]
+evaluation = [
+    "rapidfuzz>=3.13.0; python_version == '3.12'",
+    "num2words>=0.5.14; python_version == '3.12'",
+    "datasets>=3.3.2; python_version == '3.12'",
+    "soundfile>=0.13.1; python_version == '3.12'",
+    "librosa>=0.11.0; python_version == '3.12'",
+    "click>=8.2.1; python_version == '3.12'",
+    "pandas>=2.3.1; python_version == '3.12'",
+    "scipy>=1.16.1; python_version == '3.12'",
+    "textgrid>=1.6.1; python_version == '3.12'",
+    "nemo-toolkit[all]>=2.4.0; python_version == '3.12'",
+    "transformers>=4.51.3; python_version == '3.12'",
+    "backoff>=2.2.1; python_version == '3.12'",
+    "gitpython>=3.1.45; python_version == '3.12'",
+    "pyphen>=0.17.2; python_version == '3.12'",
+    "matplotlib>=3.10.6; python_version == '3.12'",
+    "numpy>=1.22,<2.0; python_version == '3.12'",
+]
 
-# Extra dependencies (only valid on Python 3.12)
-rapidfuzz = { version = "^3.13.0", optional = true, markers = "python_version == '3.12'" }
-num2words = { version = "^0.5.14", optional = true, markers = "python_version == '3.12'" }
-datasets = { version = "^3.3.2", optional = true, markers = "python_version == '3.12'" }
-soundfile = { version = "^0.13.1", optional = true, markers = "python_version == '3.12'" }
-librosa = { version = "^0.11.0", optional = true, markers = "python_version == '3.12'" }
-click = { version = "^8.2.1", optional = true, markers = "python_version == '3.12'" }
-pandas = { version = "^2.3.1", optional = true, markers = "python_version == '3.12'" }
-scipy = { version = "^1.16.1", optional = true, markers = "python_version == '3.12'" }
-textgrid = { version = "^1.6.1", optional = true, markers = "python_version == '3.12'" }
-nemo-toolkit = { extras = ["all"], version = "^2.4.0", optional = true, markers = "python_version == '3.12'" }
-transformers = { version = "^4.51.3", optional = true, markers = "python_version == '3.12'" }
-backoff = { version = "^2.2.1", optional = true, markers = "python_version == '3.12'" }
-gitpython = { version = "^3.1.45", optional = true, markers = "python_version == '3.12'" }
-pyphen = { version = "^0.17.2", optional = true, markers = "python_version == '3.12'" }
-matplotlib = { version = "^3.10.6", optional = true, markers = "python_version == '3.12'" }
-numpy = { version = ">=1.22,<2.0", optional = true, markers = "python_version == '3.12'" }
-
+# --- Poetry-specific dev/test groups (still supported by Poetry) ---
 
 [tool.poetry.group.dev]
 optional = true
@@ -61,6 +69,10 @@ pre-commit = "^4.2.0"
 build = "^1.3.0"
 twine = "^6.2.0"
 ipython = "^9.6.0"
+line-profiler = "^5.0.0"
+pybind11 = "^3.0.1"
+scikit-build-core = "^0.11.6"
+ninja = "^1.13.0"
 
 [tool.poetry.group.test]
 optional = true
@@ -70,28 +82,11 @@ pytest = ">=7.4.3,<9.0.0"
 pytest-cov = "^6.1.1"
 typeguard = "^4.4.4"
 
+# --- scikit-build configuration ---
 
-[tool.poetry.extras]
-evaluation = [
-    "rapidfuzz",
-    "num2words",
-    "datasets",
-    "soundfile",
-    "librosa",
-    "click",
-    "pandas",
-    "scipy",
-    "textgrid",
-    "nemo-toolkit",
-    "transformers",
-    "backoff",
-    "gitpython",
-    "pyphen",
-    "matplotlib",
-    "numpy",
-]
+[tool.scikit-build]
+wheel.expand-macos-universal-tags = true
+build-dir = "build/{wheel_tag}"
 
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.scikit-build.sdist]
+include = ["cpp/*", "CMakeLists.txt", "error_align/*", "README.md", "pyproject.toml"]
