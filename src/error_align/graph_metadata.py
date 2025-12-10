@@ -1,15 +1,21 @@
 from dataclasses import dataclass, field
 from functools import lru_cache
 
-import regex as re
-
 from error_align.backtrace_graph import BacktraceGraph
 from error_align.core import compute_error_align_distance_matrix
 from error_align.utils import categorize_char
 
-# ============================================================
-# SUBGRAPH METADATA CLASS
-# ============================================================
+TokenWithSpan = tuple[str, tuple[int, int]]  # (token_str, (start_idx, end_idx))
+
+
+@dataclass
+class GraphMetadata:
+    ref_raw: str
+    hyp_raw: str
+    ref_token_matches: list[TokenWithSpan]
+    hyp_token_matches: list[TokenWithSpan]
+    ref_norm: list[str]
+    hyp_norm: list[str]
 
 
 @dataclass
@@ -18,7 +24,7 @@ class SubgraphMetadata:
 
     This data class encapsulates all necessary information about a subgraph
     derived from the reference and hypothesis texts, including their tokenized
-    and normalized forms, as well as various derived attributes used during
+    and normalized forms, as well as derived attributes used during
     the alignment process.
 
     It works as a reference for the `Path` class during beam search alignment.
@@ -86,16 +92,6 @@ class SubgraphMetadata:
         # NOTE: Used for beam pruning during beam search.
         self.unambiguous_matches = backtrace_graph.get_unambiguous_token_span_matches(self.ref)
 
-    def __repr__(self):
-        ref_preview = self.ref if len(self.ref) < 20 else self.ref[:17] + "..."
-        hyp_preview = self.hyp if len(self.hyp) < 20 else self.hyp[:17] + "..."
-        return f'SubgraphMetadata(ref="{ref_preview}", hyp="{hyp_preview}")'
-
-
-# ============================================================
-# SubgraphMetadata INITIALIZATION HELPERS
-# ============================================================
-
 
 def _embed_tokens(text_tokens: list[str]) -> str:
     """Embed tokens with delimiters."""
@@ -113,7 +109,7 @@ def _get_char_types(text: str) -> list[int]:
     return [_categorize_char_cached(c) for c in text]
 
 
-def _create_index_map(text_tokens: list[re.Match]) -> list[int]:
+def _create_index_map(text_tokens: list[TokenWithSpan]) -> list[int]:
     """Create an index map for the given tokens.
 
     The 'index_map' is used to map each aligned character back to its original position in the input text.

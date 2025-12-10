@@ -16,9 +16,14 @@
 
 [//]: <> (https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/logo_gpt.svg)
 
-__Contents__ | [Installation](#installation) | [Quickstart](#quickstart) | [Work-in-Progress](#wip) | [Citation and Research](#citation) |
+__Contents__ | [Updates](#updates) | [Installation](#installation) | [Quickstart](#quickstart) | [Citation and Research](#citation) |
 
 
+<a name="updates">
+
+## Updates
+
+→ Optimized
 
 
 <a name="installation">
@@ -51,15 +56,6 @@ Alignment(MATCH: "worth" == "worth"),
 Alignment(SUBSTITUTE: "noting" -> "nothing"),
 Alignment(INSERT: "period")
 ```
-
-<a name="wip">
-
-## Work-in-Progress
-
-- Optimization for longform text.
-- Efficient word-level first-pass.
-- C++ version with Python bindings.
-
 
 
 <a name="citation">

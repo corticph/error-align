@@ -1,3 +1,5 @@
+from importlib import resources
+
 from error_align.baselines.power.power.aligner import PowerAligner as _PowerAligner
 from error_align.utils import Alignment, OpType
 
@@ -16,12 +18,13 @@ class PowerAlign:
             ref (str): The reference sequence/transcript.
             hyp (str): The hypothesis sequence/transcript.
         """
+        lexicon_path = resources.files("error_align.baselines.power").joinpath("cmudict.rep.json")
         self.aligner = _PowerAligner(
             ref=ref,
             hyp=hyp,
             lowercase=True,
             verbose=True,
-            lexicon="/home/lb/repos/power-asr/lex/cmudict.rep.json",
+            lexicon=lexicon_path.as_posix(),
         )
 
     def align(self):

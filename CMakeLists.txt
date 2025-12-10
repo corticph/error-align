@@ -16,4 +16,5 @@ install(
         _cpp_edit_distance
         _cpp_beam_search
     LIBRARY DESTINATION error_align
+    RUNTIME DESTINATION error_align
 )

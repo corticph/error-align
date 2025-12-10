@@ -1,5 +1,8 @@
+from types import SimpleNamespace
+from typing import Union
+
 from error_align.beam_search import Path
-from error_align.subgraph_metadata import SubgraphMetadata
+from error_align.graph_metadata import SubgraphMetadata
 from error_align.utils import Alignment, OpType, translate_slice
 
 # ============================================================
@@ -7,7 +10,7 @@ from error_align.utils import Alignment, OpType, translate_slice
 # ============================================================
 
 
-def _get_delete_alignment(
+def get_delete_alignment(
     start_ref_idx: int,
     end_ref_idx: int,
     subgraph_metadata: SubgraphMetadata,
@@ -22,7 +25,7 @@ def _get_delete_alignment(
     )
 
 
-def _get_insert_alignment(
+def get_insert_alignment(
     start_hyp_idx: int,
     end_hyp_idx: int,
     subgraph_metadata: SubgraphMetadata,
@@ -37,12 +40,12 @@ def _get_insert_alignment(
     )
 
 
-def _get_match_or_substitution_alignment(
+def get_match_or_substitution_alignment(
     start_hyp_idx: int,
     end_hyp_idx: int,
     start_ref_idx: int,
     end_ref_idx: int,
-    score: int,
+    score: Union[int, float],
     subgraph_metadata: SubgraphMetadata,
 ) -> Alignment:
     """Get a MATCH or SUBSTITUTE alignment for given hypothesis and reference slices."""
@@ -63,11 +66,15 @@ def _get_match_or_substitution_alignment(
     )
 
 
-def _get_alignments(path: Path) -> list[Alignment]:
-    """Get the alignments of the path."""
+def get_alignments(path: Union[Path, SimpleNamespace]) -> list[Alignment]:
+    """Get the alignments of the path.
+
+    The input will be a SimpleNamespace if using the C++ beam search implementation.
+
+    """
 
     subgraph_metadata = path.src
-    segmentation_indices = path._end_indices
+    segmentation_indices = path.end_indices
 
     # Compute alignments from the segment end indices.
     alignments = []
@@ -76,21 +83,21 @@ def _get_alignments(path: Path) -> list[Alignment]:
         end_hyp, end_ref = end_hyp + 1, end_ref + 1
 
         if start_hyp == end_hyp:
-            alignment = _get_delete_alignment(
+            alignment = get_delete_alignment(
                 start_ref,
                 end_ref,
                 subgraph_metadata,
             )
             alignments.append(alignment)
         elif start_ref == end_ref:
-            alignment = _get_insert_alignment(
+            alignment = get_insert_alignment(
                 start_hyp,
                 end_hyp,
                 subgraph_metadata,
             )
             alignments.append(alignment)
         else:
-            alignment = _get_match_or_substitution_alignment(
+            alignment = get_match_or_substitution_alignment(
                 start_hyp,
                 end_hyp,
                 start_ref,

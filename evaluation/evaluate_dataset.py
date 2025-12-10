@@ -3,6 +3,7 @@ import re
 from collections import Counter
 from decimal import Decimal
 from functools import partial
+from importlib import resources
 from pathlib import Path
 from time import time
 
@@ -12,7 +13,7 @@ from datasets import Dataset
 from rapidfuzz.distance import Levenshtein
 from tqdm import tqdm
 
-from error_align import ErrorAlign
+from error_align import error_align
 from error_align.baselines import OptimalWordAlign, PowerAlign, RapidFuzzWordAlign
 from error_align.baselines.power.power.pronounce import PronouncerLex
 from error_align.baselines.utils import clean_example, normalize_evaluation_segment
@@ -110,7 +111,7 @@ def get_error_alignments(ref: str, hyp: str, beam_size: int):
         List[Alignment]: A list of alignment objects.
 
     """
-    return ErrorAlign(ref=ref, hyp=hyp, word_level_pass=True).align(beam_size=beam_size)
+    return error_align(ref=ref, hyp=hyp, beam_size=beam_size, word_level_pass=True)
 
 
 def get_optimal_word_alignments(ref: str, hyp: str):
@@ -270,9 +271,8 @@ def main(transcript_file: str, only_error_align: bool, beam_size: int, save_resu
     # Run evaluation.
     metrics = {k: Counter() for k in methods}
     char_edits_all = {k: [] for k in methods}
-    phoneme_converter = (
-        PronouncerLex("/home/lb/repos/power-asr/lex/cmudict.rep.json").pronounce if language_code == "en" else None
-    )
+    lexicon_path = resources.files("error_align.baselines.power").joinpath("cmudict.rep.json")
+    phoneme_converter = PronouncerLex(lexicon_path.as_posix()).pronounce if language_code == "en" else None
 
     c_n, p_n = 0, 0
     for example in tqdm(dataset):

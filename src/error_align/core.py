@@ -5,7 +5,6 @@ USING_CPP = False
 
 # Try native extension first
 try:
-    raise ModuleNotFoundError  # Force fallback for testing
     _core_edit_distance = import_module("error_align._cpp_edit_distance")
     _core_beam_search = import_module("error_align._cpp_beam_search")
     USING_CPP = True

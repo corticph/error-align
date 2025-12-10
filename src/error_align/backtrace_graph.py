@@ -14,14 +14,6 @@ class Node:
         self.children = {}
         self.parents = {}
 
-        # Used to count the number of paths going through this node.
-        self._bwd_node_count = 0
-        self._fwd_node_count = 0
-
-        # Used to store the operations that lead to this node.
-        self._ingoing_edge_counts = {}
-        self._outgoing_edge_counts = {}
-
     @property
     def index(self) -> tuple[int, int]:
         return (self.hyp_idx, self.ref_idx)
@@ -37,37 +29,6 @@ class Node:
 
         """
         return (self.hyp_idx - 1, self.ref_idx - 1)
-
-    @property
-    def number_of_paths(self):
-        return self._bwd_node_count * self._fwd_node_count
-
-    def number_of_ingoing_paths_via(self, op_type: OpType) -> int:
-        """Get the number of paths going through this node via the given operation type.
-
-        Args:
-            op_type (OpType): The operation type to check.
-
-        Returns:
-            int: The number of ingoing paths via the given operation type.
-        """
-        if op_type not in self.parents:
-            return 0
-        return self._ingoing_edge_counts[op_type] * self.parents[op_type]._outgoing_edge_counts[op_type]
-
-    def number_of_outgoing_paths_via(self, op_type: OpType) -> int:
-        """Get the number of paths going through this node via the given operation type.
-
-        Args:
-            op_type (OpType): The operation type to check.
-
-        Returns:
-            int: The number of outgoing paths via the given operation type.
-
-        """
-        if op_type not in self.children:
-            return 0
-        return self._outgoing_edge_counts[op_type] * self.children[op_type]._ingoing_edge_counts[op_type]
 
     @property
     def is_terminal(self) -> bool:
@@ -112,19 +73,8 @@ class BacktraceGraph:
 
             # Sort nodes by their indices to ensure topological order.
             self._nodes = dict(sorted(self._nodes.items(), key=lambda item: (item[0][0], item[0][1])))
-            self._set_path_and_node_counts()  # TODO: Consider to do this lazily. Shouldn't be too expensive.
 
         return self._nodes
-
-    @property
-    def number_of_paths(self):
-        """Count the number of paths in the graph.
-
-        Returns:
-            int: The number of paths.
-
-        """
-        return self.get_node(0, 0)._bwd_node_count
 
     def get_node(self, hyp_idx, ref_idx):
         """Get the node at the given index.
@@ -250,7 +200,7 @@ class BacktraceGraph:
 
     def _iter_topological_order(self, reverse=False):
         """Iterate through the nodes in topological order."""
-        if reversed:
+        if reverse:
             for i in reversed(range(self.hyp_dim)):
                 for j in reversed(range(self.ref_dim)):
                     yield (i, j)
@@ -272,30 +222,3 @@ class BacktraceGraph:
             parent_node = self._parent_index_from_op_type(*node.index, op_type)
             node.parents[op_type] = parent_node
             parent_node.children[op_type] = node
-
-    def _set_path_and_node_counts(self):
-        """Count the number of paths going through any node in the graph using the forward-backward algorithm."""
-        ordered_nodes = list(self.nodes.values())
-        root_node = ordered_nodes[0]
-        terminal_node = ordered_nodes[-1]
-        assert root_node.is_root, "The first node must be a root node."
-        assert terminal_node.is_terminal, "The last node must be a terminal node."
-
-        # Forward pass
-        ordered_nodes[0]._fwd_node_count = 1
-        for node in ordered_nodes[1:]:
-            for op_type, parent in node.parents.items():
-                node._fwd_node_count += parent._fwd_node_count
-                node._ingoing_edge_counts[op_type] = parent._fwd_node_count
-
-        # Backward pass
-        ordered_nodes[-1]._bwd_node_count = 1
-        for node in reversed(ordered_nodes[:-1]):
-            for op_type, child in node.children.items():
-                node._bwd_node_count += child._bwd_node_count
-                node._outgoing_edge_counts[op_type] = child._bwd_node_count
-
-        # Validate that the number of forward and backward paths are equal
-        assert root_node._bwd_node_count == terminal_node._fwd_node_count, (
-            "The number of forward and backward paths must be equal."
-        )
