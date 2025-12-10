@@ -14,7 +14,7 @@
 
 **Text-to-text alignment algorithm for speech recognition error analysis.** ErrorAlign helps you dig deeper into your speech recognition projects by accurately aligning each word in a reference transcript with the model-generated transcript. Unlike traditional methods, such as Levenshtein-based alignment, it is not restricted to simple one-to-one alignment, but can map a single reference word to multiple words or subwords in the model output. This enables quick and reliable identification of error patterns in rare words, names, or domain-specific terms that matter most for your application.
 
-→ **Update [2025-12-10]:** Now includes a word-level pass to efficiently identify unambiguous matches, along with C++ extensions that accelerate beam search and backtrace construction. The combined speedup is ~15× over the pure-Python implementation ⚡
+→ **Update [2025-12-10]:** As of version `0.1.0b5`, `error-align` will include a word-level pass to efficiently identify unambiguous matches, along with C++ extensions to accelerate beam search and backtrace construction. The combined speedup is ~15× over the pure-Python implementation ⚡
 
 [//]: <> (https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/logo_gpt.svg)
 
