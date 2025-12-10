@@ -28,6 +28,8 @@ jobs:
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
 
-    artifacts:
-      name: wheels
-      path: wheelhouse/*.whl
+      - name: Upload wheels as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: wheelhouse/*.whl
