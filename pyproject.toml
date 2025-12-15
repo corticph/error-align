@@ -12,7 +12,7 @@ name = "error-align"
 version = "0.1.0b5"
 description = "Text-to-text alignment algorithm for speech recognition error analysis."
 readme = "README.md"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 license = { text = "MIT" }
 authors = [{ name = "Lasse Borgholt", email = "lb@corti.ai" }]
 keywords = ["speech-recognition", "text-alignment", "NLP", "evaluation"]
