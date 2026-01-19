@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/python-%203.11%20|%203.12%20|%203.13%20|%203.14-green" alt="Python Versions">
+  <img src="https://img.shields.io/badge/python-%203.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14-green" alt="Python Versions">
   <img src="https://img.shields.io/codecov/c/github/corticph/error-align/main.svg?style=flat-square" alt="Coverage" style="margin-left:5px;">
   <img src="https://img.shields.io/pypi/v/error-align.svg" alt="PyPI" style="margin-left:5px;">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" style="margin-left:5px;">
