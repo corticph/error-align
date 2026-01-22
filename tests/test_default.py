@@ -71,6 +71,23 @@ def test_error_align_identical() -> None:
         assert alignment.op_type == OpType.MATCH
 
 
+def test_partial_substitution_and_insertion() -> None:
+    """Test error alignment for partial substitutions and insertions with compound markers."""
+
+    ref = "test"
+    hyp = "testpartial"
+
+    alignments = error_align(ref, hyp)
+
+    assert len(alignments) == 2
+    assert alignments[0].op_type == OpType.SUBSTITUTE
+    assert alignments[0].left_compound is False
+    assert alignments[0].right_compound is True
+    assert alignments[1].op_type == OpType.INSERT
+    assert alignments[1].left_compound is True
+    assert alignments[1].right_compound is False
+
+
 def test_categorize_char() -> None:
     """Test character categorization."""
 
