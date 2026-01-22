@@ -37,6 +37,8 @@ def get_insert_alignment(
         op_type=OpType.INSERT,
         hyp_slice=hyp_slice,
         hyp=subgraph_metadata.hyp_raw[hyp_slice],
+        left_compound=subgraph_metadata.hyp_idx_map[start_hyp_idx] >= 0,
+        right_compound=subgraph_metadata.hyp_idx_map[end_hyp_idx - 1] >= 0,
     )
 
 
