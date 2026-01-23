@@ -9,7 +9,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "error-align"
-version = "0.1.0b7"
+version = "0.1.0b8"
 description = "Text-to-text alignment algorithm for speech recognition error analysis."
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
@@ -59,6 +59,10 @@ evaluation = [
     "pyphen>=0.17.2; python_version == '3.12'",
     "matplotlib>=3.10.6; python_version == '3.12'",
     "numpy>=1.22,<2.0; python_version == '3.12'",
+    "lilcom==1.8.1; python_version == '3.12'",
+    "torchcodec (>=0.9.1,<0.10.0); python_version == '3.12'",
+    "torch (>=2.9,<2.10); python_version == '3.12'",
+    "torchvision (==0.24); python_version == '3.12'",
 ]
 
 # --- Poetry-specific dev/test groups (still supported by Poetry) ---
