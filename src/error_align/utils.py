@@ -1,9 +1,13 @@
+import unicodedata
 from dataclasses import dataclass
 from enum import IntEnum
 from itertools import chain, combinations
 
 import regex as re
 from unidecode import unidecode
+
+# Build a translation table that maps all Mn (non-spacing mark) code points to None
+_MN_TABLE = str.maketrans({cp: None for cp in range(0x110000) if unicodedata.category(chr(cp)) == "Mn"})
 
 
 class OpType(IntEnum):
@@ -152,7 +156,7 @@ def basic_normalizer(text: str) -> str:
         str: The normalized text.
 
     """
-    return text.lower()
+    return text.lower().translate(_MN_TABLE)
 
 
 def ensure_length_preservation(normalizer: callable) -> callable:
