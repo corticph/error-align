@@ -97,7 +97,10 @@ def is_vowel(c: str) -> bool:
 
     """
     assert len(c) == 1, "Input must be a single character."
-    return unidecode(c)[0] in "aeiouy"
+    decode_char = unidecode(c)
+    if len(decode_char) == 0:
+        return False
+    return decode_char[0] in "aeiouy"
 
 
 def is_consonant(c: str) -> bool:
@@ -111,7 +114,10 @@ def is_consonant(c: str) -> bool:
 
     """
     assert len(c) == 1, "Input must be a single character."
-    return unidecode(c)[0] in "bcdfghjklmnpqrstvwxyz"
+    decode_char = unidecode(c)
+    if len(decode_char) == 0:
+        return False
+    return decode_char[0] in "bcdfghjklmnpqrstvwxyz"
 
 
 def categorize_char(c: str) -> int:
