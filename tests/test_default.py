@@ -8,7 +8,15 @@ from error_align.beam_search import error_align_beam_search as python_error_alig
 from error_align.edit_distance import compute_error_align_distance_matrix, compute_levenshtein_distance_matrix
 from error_align.error_align import prepare_graph_metadata
 from error_align.graph_metadata import SubgraphMetadata
-from error_align.utils import Alignment, OpType, basic_normalizer, categorize_char, ensure_length_preservation
+from error_align.utils import (
+    Alignment,
+    OpType,
+    basic_normalizer,
+    categorize_char,
+    ensure_length_preservation,
+    is_consonant,
+    is_vowel,
+)
 
 
 def test_error_align() -> None:
@@ -232,6 +240,13 @@ def test_normalization_guardrails() -> None:
         raise AssertionError("Expected ValueError for length mismatch.")
     except ValueError:
         pass
+
+
+def test_is_vowel_and_is_consonant_with_empty_unidecode() -> None:
+    """Regression test: characters that unidecode to '' must return False instead of crashing."""
+    # U+0300 (combining grave accent) unidecodes to an empty string
+    assert is_vowel("\u0300") is False
+    assert is_consonant("\u0300") is False
 
 
 def test_basic_normalizer_dotted_capital_i() -> None:
