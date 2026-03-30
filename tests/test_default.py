@@ -8,7 +8,7 @@ from error_align.beam_search import error_align_beam_search as python_error_alig
 from error_align.edit_distance import compute_error_align_distance_matrix, compute_levenshtein_distance_matrix
 from error_align.error_align import prepare_graph_metadata
 from error_align.graph_metadata import SubgraphMetadata
-from error_align.utils import Alignment, OpType, categorize_char, ensure_length_preservation
+from error_align.utils import Alignment, OpType, basic_normalizer, categorize_char, ensure_length_preservation
 
 
 def test_error_align() -> None:
@@ -232,3 +232,10 @@ def test_normalization_guardrails() -> None:
         raise AssertionError("Expected ValueError for length mismatch.")
     except ValueError:
         pass
+
+
+def test_basic_normalizer_dotted_capital_i() -> None:
+    """Regression test: U+0130 (İ) must not expand length when lowercased."""
+    result = basic_normalizer("İstanbul")
+    assert result == "istanbul"
+    assert len(result) == len("İstanbul")

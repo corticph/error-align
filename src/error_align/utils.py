@@ -1,13 +1,9 @@
-import unicodedata
 from dataclasses import dataclass
 from enum import IntEnum
 from itertools import chain, combinations
 
 import regex as re
 from unidecode import unidecode
-
-# Build a translation table that maps all Mn (non-spacing mark) code points to None
-_MN_TABLE = str.maketrans({cp: None for cp in range(0x110000) if unicodedata.category(chr(cp)) == "Mn"})
 
 
 class OpType(IntEnum):
@@ -153,7 +149,11 @@ def basic_tokenizer(text: str) -> list:
 
 
 def basic_normalizer(text: str) -> str:
-    """Default normalizer that only converts text to lowercase.
+    """Default normalizer that converts text to lowercase.
+
+    U+0130 (İ, Latin capital letter I with dot above) is replaced with a plain
+    'I' before lowercasing to prevent the length-expanding decomposition that
+    Python's str.lower() would otherwise produce ('i' + combining dot above).
 
     Args:
         text (str): The input text to normalize.
@@ -162,7 +162,7 @@ def basic_normalizer(text: str) -> str:
         str: The normalized text.
 
     """
-    return text.lower().translate(_MN_TABLE)
+    return text.replace("\u0130", "I").lower()
 
 
 def ensure_length_preservation(normalizer: callable) -> callable:
