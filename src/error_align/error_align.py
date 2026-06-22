@@ -1,3 +1,5 @@
+from rapidfuzz.distance import Levenshtein
+
 from error_align.backtrace_graph import BacktraceGraph
 from error_align.core import compute_levenshtein_distance_matrix, error_align_beam_search
 from error_align.graph_metadata import GraphMetadata, SubgraphMetadata
@@ -19,6 +21,7 @@ def error_align(
     normalizer: callable = basic_normalizer,
     beam_size: int = 100,
     word_level_pass: bool = True,
+    word_level_method: str = "rapidfuzz",
 ):
     """Run error alignment between reference and hypothesis texts.
 
@@ -28,7 +31,10 @@ def error_align(
         tokenizer (callable): A function to tokenize the sequences. Must be regex-based and return Match objects.
         normalizer (callable): A function to normalize the tokens. Defaults to basic_normalizer.
         beam_size (int): The beam size for beam search alignment.
-        word_level_pass (bool): Whether to perform a word-level alignment pass to identify unambiguous matches.
+        word_level_pass (bool): Whether to perform a word-level alignment pass to anchor matches before beam search.
+        word_level_method (str): Which word-level pass to use when ``word_level_pass`` is True. ``"rapidfuzz"``
+            (default) takes the matches from a single optimal Levenshtein alignment via rapidfuzz. ``"unambiguous"``
+            builds the full backtrace graph and only anchors matches common to all optimal paths.
 
     """
     graph_metadata = prepare_graph_metadata(
@@ -42,8 +48,12 @@ def error_align(
         return align_identical_inputs(graph_metadata)
     elif not word_level_pass:
         return align_beam_search(graph_metadata, beam_size=beam_size)
-    else:
+    elif word_level_method == "rapidfuzz":
+        return align_with_rapidfuzz_word_level_pass(graph_metadata, beam_size=beam_size)
+    elif word_level_method == "unambiguous":
         return align_with_word_level_pass(graph_metadata, beam_size=beam_size)
+    else:
+        raise ValueError(f"Unknown word_level_method: {word_level_method!r}")
 
 
 def prepare_graph_metadata(
@@ -127,10 +137,44 @@ def align_with_word_level_pass(
     )
     backtrace_graph = BacktraceGraph(backtrace_matrix)
     match_indices = backtrace_graph.get_unambiguous_node_matches()
+    return align_from_match_indices(graph_metadata, beam_size, match_indices)
+
+
+def align_with_rapidfuzz_word_level_pass(
+    graph_metadata: GraphMetadata,
+    beam_size: int,
+) -> list[Alignment]:
+    """Perform a word-level alignment pass using matches from a single optimal Levenshtein alignment."""
+    match_indices = get_rapidfuzz_match_indices(graph_metadata.ref_norm, graph_metadata.hyp_norm)
+    return align_from_match_indices(graph_metadata, beam_size, match_indices)
+
+
+def get_rapidfuzz_match_indices(ref_norm: list[str], hyp_norm: list[str]) -> list[tuple[int, int]]:
+    """Infer word-level match indices from a rapidfuzz Levenshtein alignment.
+
+    rapidfuzz only emits the non-match operations (insert/delete/replace), so matches are recovered as the
+    complement of the edited token indices. Returns ``(hyp_idx, ref_idx)`` tuples to match the convention used
+    by ``BacktraceGraph.get_unambiguous_node_matches`` and consumed by ``align_from_match_indices``.
+    """
+    edit_ops = Levenshtein.editops(ref_norm, hyp_norm).as_list()  # (op, ref_idx, hyp_idx)
+    ref_edit_idxs = {op[1] for op in edit_ops if op[0] != "insert"}
+    hyp_edit_idxs = {op[2] for op in edit_ops if op[0] != "delete"}
+    ref_match = [i for i in range(len(ref_norm)) if i not in ref_edit_idxs]
+    hyp_match = [i for i in range(len(hyp_norm)) if i not in hyp_edit_idxs]
+    # Matches are monotonic in both axes; zip the complements and swap to (hyp, ref).
+    return [(h, r) for r, h in zip(ref_match, hyp_match, strict=True)]
+
+
+def align_from_match_indices(
+    graph_metadata: GraphMetadata,
+    beam_size: int,
+    match_indices: list[tuple[int, int]],
+) -> list[Alignment]:
+    """Extract alignments from word-level match anchors, beam-searching the ambiguous spans between them."""
     # NOTE: We always add an artificial terminal match node to simplify subspan extraction.
     match_indices = match_indices + [(len(graph_metadata.hyp_norm), len(graph_metadata.ref_norm))]
 
-    # Iterate over the unambiguous matches to extract subspans (i.e., the span of words between two matches).
+    # Iterate over the matches to extract subspans (i.e., the span of words between two matches).
     hyp_start, ref_start = (0, 0)
     alignments = []
     end_index = len(match_indices) - 1
