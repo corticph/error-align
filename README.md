@@ -15,7 +15,7 @@
 
 → **Update [2026-06-22]:** As of version `0.1.0b10`, the word-level pass defaults to a faster `rapidfuzz`-based method that anchors matches from a single optimal Levenshtein alignment. On longer examples (e.g., Earnings-21), the speedup is expected to be around 30×. The original graph-based pass is still available via `error_align(ref, hyp, word_level_method="unambiguous")`.
 
-→ **Update [2025-12-10]:** As of version `0.1.0b5`, `error-align` will include a word-level pass to efficiently identify unambiguous matches, along with C++ extensions to accelerate beam search and backtrace construction. The combined speedup is ~15× over the pure-Python implementation ⚡
+→ **Update [2025-12-10]:** As of version `0.1.0b5`, `error-align` will include a word-level pass to efficiently identify unambiguous matches, along with C++ extensions to accelerate beam search and backtrace construction. The combined speedup is ~15× over the pure-Python implementation.
 
 [//]: <> (https://raw.githubusercontent.com/corticph/error-align/refs/heads/main/.github/assets/logo_gpt.svg)
 
