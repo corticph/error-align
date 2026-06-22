@@ -218,7 +218,7 @@ def align_from_match_indices(
                     hyp_index=hyp_end,
                 )
             )
-        ref_start, hyp_start = (ref_end + 1, hyp_end + 1)
+        hyp_start, ref_start = (hyp_end + 1, ref_end + 1)
 
     return alignments
 

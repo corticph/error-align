@@ -42,14 +42,21 @@ def test_error_align(word_level_method: str) -> None:
         assert alignment.op_type == op
 
 
-def test_get_rapidfuzz_match_indices() -> None:
+@pytest.mark.parametrize(
+    ("ref_norm", "hyp_norm", "expected"),
+    [
+        # Replace: equal lengths, only the differing token is excluded.
+        (["this", "is", "a", "test"], ["this", "is", "a", "pest"], [(0, 0), (1, 1), (2, 2)]),
+        # Insertion: hyp longer; "b" stays matched at (hyp=2, ref=1).
+        (["a", "b"], ["a", "x", "b"], [(0, 0), (2, 1)]),
+        # Deletion: ref longer; "c" stays matched at (hyp=1, ref=2).
+        (["a", "b", "c"], ["a", "c"], [(0, 0), (1, 2)]),
+    ],
+)
+def test_get_rapidfuzz_match_indices(ref_norm: list[str], hyp_norm: list[str], expected: list[tuple[int, int]]) -> None:
     """Match indices are inferred as the complement of rapidfuzz edit ops, in (hyp_idx, ref_idx) order."""
 
-    ref_norm = ["this", "is", "a", "test"]
-    hyp_norm = ["this", "is", "a", "pest"]
-
-    # The first three tokens match; "test" -> "pest" is a replace, so index 3 is excluded.
-    assert get_rapidfuzz_match_indices(ref_norm, hyp_norm) == [(0, 0), (1, 1), (2, 2)]
+    assert get_rapidfuzz_match_indices(ref_norm, hyp_norm) == expected
 
 
 def test_error_align_unknown_word_level_method() -> None:
