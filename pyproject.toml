@@ -100,3 +100,13 @@ build-dir = "build/{wheel_tag}"
 
 [tool.scikit-build.sdist]
 include = ["cpp/*", "CMakeLists.txt", "error_align/*", "README.md", "pyproject.toml"]
+
+# Map the editable source tree and the installed (non-editable) copy to the same
+# logical paths so coverage merges them instead of double-counting. CI installs the
+# package into site-packages (to compile the C++ extension), so without this the
+# untouched src/ tree would otherwise be reported separately at 0%.
+[tool.coverage.paths]
+source = ["src/error_align", "*/site-packages/error_align"]
+
+[tool.coverage.run]
+source = ["error_align"]
