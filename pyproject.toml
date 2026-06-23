@@ -9,7 +9,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "error-align"
-version = "0.1.0b9"
+version = "0.1.0b10"
 description = "Text-to-text alignment algorithm for speech recognition error analysis."
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
@@ -36,6 +36,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "unidecode>=1.4.0",
     "regex>=2025.9.18",
+    "rapidfuzz>=3.13.0",
 ]
 
 [project.urls]
@@ -43,7 +44,6 @@ Homepage = "https://github.com/corticph/error-align"
 
 [project.optional-dependencies]
 evaluation = [
-    "rapidfuzz>=3.13.0; python_version == '3.12'",
     "num2words>=0.5.14; python_version == '3.12'",
     "datasets>=3.3.2; python_version == '3.12'",
     "soundfile>=0.13.1; python_version == '3.12'",

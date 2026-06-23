@@ -1,3 +1,4 @@
+import pytest
 from error_align._cpp_beam_search import error_align_beam_search as cpp_error_align_beam_search
 from typeguard import suppress_type_checks
 
@@ -6,7 +7,7 @@ from error_align.backtrace_graph import BacktraceGraph
 from error_align.beam_search import _cpp_path_to_py_path
 from error_align.beam_search import error_align_beam_search as python_error_align_beam_search
 from error_align.edit_distance import compute_error_align_distance_matrix, compute_levenshtein_distance_matrix
-from error_align.error_align import prepare_graph_metadata
+from error_align.error_align import get_rapidfuzz_match_indices, prepare_graph_metadata
 from error_align.graph_metadata import SubgraphMetadata
 from error_align.utils import (
     Alignment,
@@ -19,13 +20,14 @@ from error_align.utils import (
 )
 
 
-def test_error_align() -> None:
+@pytest.mark.parametrize("word_level_method", ["rapidfuzz", "unambiguous"])
+def test_error_align(word_level_method: str) -> None:
     """Test error alignment for an example including all substitution types."""
 
     ref = "This is a substitution test deleted."
     hyp = "Inserted this is a contribution test."
 
-    alignments = error_align(ref, hyp)
+    alignments = error_align(ref, hyp, word_level_method=word_level_method)
     expected_ops = [
         OpType.INSERT,  # Inserted
         OpType.MATCH,  # This
@@ -38,6 +40,30 @@ def test_error_align() -> None:
 
     for op, alignment in zip(expected_ops, alignments, strict=True):
         assert alignment.op_type == op
+
+
+@pytest.mark.parametrize(
+    ("ref_norm", "hyp_norm", "expected"),
+    [
+        # Replace: equal lengths, only the differing token is excluded.
+        (["this", "is", "a", "test"], ["this", "is", "a", "pest"], [(0, 0), (1, 1), (2, 2)]),
+        # Insertion: hyp longer; "b" stays matched at (hyp=2, ref=1).
+        (["a", "b"], ["a", "x", "b"], [(0, 0), (2, 1)]),
+        # Deletion: ref longer; "c" stays matched at (hyp=1, ref=2).
+        (["a", "b", "c"], ["a", "c"], [(0, 0), (1, 2)]),
+    ],
+)
+def test_get_rapidfuzz_match_indices(ref_norm: list[str], hyp_norm: list[str], expected: list[tuple[int, int]]) -> None:
+    """Match indices are inferred as the complement of rapidfuzz edit ops, in (hyp_idx, ref_idx) order."""
+
+    assert get_rapidfuzz_match_indices(ref_norm, hyp_norm) == expected
+
+
+def test_error_align_unknown_word_level_method() -> None:
+    """An unknown word-level method raises a clear error."""
+
+    with pytest.raises(ValueError, match="Unknown word_level_method"):
+        error_align("a b c", "a x c", word_level_method="nonsense")
 
 
 def test_beam_search_cpp_vs_python() -> None:
