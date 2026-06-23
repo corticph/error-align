@@ -61,7 +61,7 @@ Alignment(INSERT: "period")
 
 ```
 @inproceedings{borgholt2026text,
-  title={A text-to-text alignment algorithm for better evaluation of modern speech recognition systems},
+  title={A Text-To-Text Alignment Algorithm for Better Evaluation of Modern Speech Recognition Systems},
   author={Borgholt, Lasse and Havtorn, Jakob and Igel, Christian and Maal{\o}e, Lars and Tan, Zheng-Hua},
   booktitle={ICASSP 2026-2026 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
   pages={3476--3480},
