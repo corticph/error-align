@@ -101,16 +101,6 @@ build-dir = "build/{wheel_tag}"
 [tool.scikit-build.sdist]
 include = ["cpp/*", "CMakeLists.txt", "error_align/*", "README.md", "pyproject.toml"]
 
-# Map the editable source tree and the installed (non-editable) copy to the same
-# logical paths so coverage merges them instead of double-counting. CI installs the
-# package into site-packages (to compile the C++ extension), so without this the
-# untouched src/ tree would otherwise be reported separately at 0%.
-[tool.coverage.paths]
-source = ["src/error_align", "*/site-packages/error_align"]
-
-[tool.coverage.run]
-source = ["error_align"]
-# Exclude the research baselines (POWER, etc.): they are optional, largely
-# untested, and only became measurable once rapidfuzz became a core dependency.
-# The codecov.yml ignore glob does not match their installed path, so omit here.
-omit = ["*/baselines/*"]
+# NOTE: Coverage.py configuration lives in .coveragerc (which takes precedence
+# over pyproject.toml). Keep it there as the single source of truth rather than
+# splitting/duplicating coverage settings across two files.

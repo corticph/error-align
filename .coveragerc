@@ -3,4 +3,7 @@ branch = True
 source = error_align
 
 [report]
-omit = src/error_align/baselines/*
+# Match both the editable (src/error_align/...) and installed
+# (.../site-packages/error_align/...) layouts so baselines are omitted in
+# both local and CI runs.
+omit = */baselines/*
