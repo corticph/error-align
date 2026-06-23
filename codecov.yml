@@ -1,5 +1,5 @@
 ignore:
-  - "src/error_align/baselines/*"
+  - "**/baselines/**"
 
 coverage:
   status:
