@@ -100,3 +100,7 @@ build-dir = "build/{wheel_tag}"
 
 [tool.scikit-build.sdist]
 include = ["cpp/*", "CMakeLists.txt", "error_align/*", "README.md", "pyproject.toml"]
+
+# NOTE: Coverage.py configuration lives in .coveragerc (which takes precedence
+# over pyproject.toml). Keep it there as the single source of truth rather than
+# splitting/duplicating coverage settings across two files.
