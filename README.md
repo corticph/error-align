@@ -60,11 +60,13 @@ Alignment(INSERT: "period")
 ## Citation and Research
 
 ```
-@article{borgholt2025text,
-  title={A Text-To-Text Alignment Algorithm for Better Evaluation of Modern Speech Recognition Systems},
+@inproceedings{borgholt2026text,
+  title={A text-to-text alignment algorithm for better evaluation of modern speech recognition systems},
   author={Borgholt, Lasse and Havtorn, Jakob and Igel, Christian and Maal{\o}e, Lars and Tan, Zheng-Hua},
-  journal={arXiv preprint arXiv:2509.24478},
-  year={2025}
+  booktitle={ICASSP 2026-2026 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  pages={3476--3480},
+  year={2026},
+  organization={IEEE}
 }
 ```
 
