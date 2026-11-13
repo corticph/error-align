@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/assets/logo.svg" alt="ErrorAlign Logo" width="560"/>
+  <img src=".github/assets/logo.svg" alt="ErrorAlign Logo" width="100%"/>
 </p>
 
 <p align="center">

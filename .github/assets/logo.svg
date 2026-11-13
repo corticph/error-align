@@ -1,6 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" role="img" aria-label="ErrorAlign logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 150" role="img" aria-label="ErrorAlign logo">
   <style>
-    text {
+    @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500');
+    .wordmark {
       font-family: 'Courier New', Courier, monospace;
       font-size: 48px;
       font-weight: bold;
@@ -23,7 +24,7 @@
   </defs>
 
   <!-- Centered group: 6 chars + gap, ~28.8px per char -->
-  <g transform="translate(180, 60)">
+  <g class="wordmark" transform="translate(290, 60)">
     <!-- Line 1: "error" + gap + grey space -->
     <text x="-92" y="-10" text-anchor="start" fill="url(#error-gradient)">error</text>
     <rect x="61" y="-46" width="28.8" height="42" rx="2" fill="url(#block-gradient)"/>
@@ -32,4 +33,14 @@
     <rect x="-89.8" y="2" width="28.8" height="42" rx="2" fill="url(#block-gradient)"/>
     <text x="-52" y="38" text-anchor="start" fill="url(#align-gradient)">align</text>
   </g>
+
+  <text
+    x="290" y="134"
+    text-anchor="middle"
+    font-family="'Geist', system-ui, sans-serif"
+    font-size="10"
+    font-weight="400"
+    letter-spacing="2.5"
+    fill="#73726c"
+  >Text-to-text alignment algorithm for speech recognition error analysis</text>
 </svg>
