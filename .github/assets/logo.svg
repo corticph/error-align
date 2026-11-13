@@ -1,10 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 150" role="img" aria-label="ErrorAlign logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 166" role="img" aria-label="ErrorAlign logo">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500');
     .wordmark {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 48px;
-      font-weight: bold;
+      font-size: 56px;
+      font-weight: normal;
+      stroke-width: 3.5px;
+      stroke-linejoin: round;
     }
   </style>
 
@@ -23,24 +25,24 @@
     </linearGradient>
   </defs>
 
-  <!-- Centered group: 6 chars + gap, ~28.8px per char -->
-  <g class="wordmark" transform="translate(290, 60)">
+  <!-- Centered group: 5 chars + gap + block, 33.6px per char -->
+  <g class="wordmark" transform="translate(290, 68)">
     <!-- Line 1: "error" + gap + grey space -->
-    <text x="-92" y="-10" text-anchor="start" fill="url(#error-gradient)">error</text>
-    <rect x="61" y="-46" width="28.8" height="42" rx="2" fill="url(#block-gradient)"/>
+    <text x="-106" y="-11.7" text-anchor="start" fill="url(#error-gradient)" stroke="url(#error-gradient)">error</text>
+    <rect x="72.5" y="-53.7" width="33.6" height="49" rx="2.3" fill="url(#block-gradient)"/>
 
     <!-- Line 2: grey space + gap + "align" -->
-    <rect x="-89.8" y="2" width="28.8" height="42" rx="2" fill="url(#block-gradient)"/>
-    <text x="-52" y="38" text-anchor="start" fill="url(#align-gradient)">align</text>
+    <rect x="-106.1" y="2.3" width="33.6" height="49" rx="2.3" fill="url(#block-gradient)"/>
+    <text x="-62" y="44.3" text-anchor="start" fill="url(#align-gradient)" stroke="url(#align-gradient)">align</text>
   </g>
 
   <text
-    x="290" y="134"
+    x="290" y="150"
     text-anchor="middle"
     font-family="'Geist', system-ui, sans-serif"
     font-size="10"
     font-weight="400"
-    letter-spacing="2.5"
+    letter-spacing="3.5"
     fill="#73726c"
-  >Text-to-text alignment algorithm for speech recognition error analysis</text>
+  >A text-to-text alignment algorithm.</text>
 </svg>
