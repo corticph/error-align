@@ -1,34 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="210"
-     viewBox="0 0 1200 210" role="img" aria-label="ErrorAlign logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 166" role="img" aria-label="ErrorAlign logo">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500');
+    .wordmark {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 56px;
+      font-weight: normal;
+      stroke-width: 3.5px;
+      stroke-linejoin: round;
+    }
+  </style>
 
-  <!-- outer white border -->
-  <!--  <rect x="207" y="50" width="860" height="200" fill="white" stroke="white" stroke-width="10" transform="skewX(-12)"/> -->
+  <defs>
+    <linearGradient id="error-gradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9e1414"/>
+      <stop offset="100%" stop-color="#e0735a"/>
+    </linearGradient>
+    <linearGradient id="align-gradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2d7a0a"/>
+      <stop offset="100%" stop-color="#a6c95e"/>
+    </linearGradient>
+    <!-- Light end at the upper-right corner, fading toward the lower left -->
+    <linearGradient id="block-gradient-top" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e0e0e0"/>
+      <stop offset="100%" stop-color="#c2c2c2"/>
+    </linearGradient>
+    <!-- Light end at the lower-left corner, fading toward the upper right -->
+    <linearGradient id="block-gradient-bottom" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e0e0e0"/>
+      <stop offset="100%" stop-color="#c2c2c2"/>
+    </linearGradient>
+  </defs>
 
-  <!-- "Error" -->
-  <text x="51.5%" y="130"
-        text-anchor="end"
-        dominant-baseline="middle"
-        font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-        font-weight="900"
-        font-style="italic"
-        font-size="130"
-        stroke="#2b2b2bff"
-        stroke-width="6"
-        fill="#8e0000b4">
-    ERROR
-  </text>
+  <!-- Centered group: 5 chars + gap + block, 33.6px per char -->
+  <g class="wordmark" transform="translate(290, 68)">
+    <!-- Line 1: "error" + gap + grey space -->
+    <text x="-106" y="-11.7" text-anchor="start" fill="url(#error-gradient)" stroke="url(#error-gradient)">error</text>
+    <rect x="72.5" y="-53.7" width="33.6" height="49" rx="2.3" fill="url(#block-gradient-top)"/>
 
-  <!-- "Align" -->
-  <text x="52.5%" y="130"
-        text-anchor="start"
-        dominant-baseline="middle"
-        font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-        font-weight="900"
-        font-style="italic"
-        font-size="130"
-        stroke="#2b2b2bff"
-        stroke-width="6"
-        fill="#297301b4">
-    ALIGN
-  </text>
+    <!-- Line 2: grey space + gap + "align" -->
+    <rect x="-106.1" y="2.3" width="33.6" height="49" rx="2.3" fill="url(#block-gradient-bottom)"/>
+    <text x="-62" y="44.3" text-anchor="start" fill="url(#align-gradient)" stroke="url(#align-gradient)">align</text>
+  </g>
+
+  <text
+    x="290" y="150"
+    text-anchor="middle"
+    font-family="'Geist', system-ui, sans-serif"
+    font-size="10"
+    font-weight="400"
+    letter-spacing="3.5"
+    fill="#73726c"
+  >A text-to-text alignment algorithm 📄↔️📄</text>
 </svg>
