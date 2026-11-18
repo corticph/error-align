@@ -48,7 +48,7 @@
     font-family="'Geist', system-ui, sans-serif"
     font-size="10"
     font-weight="400"
-    letter-spacing="3.5"
+    letter-spacing="2.5"
     fill="#73726c"
   >A text-to-text alignment algorithm</text>
 </svg>
